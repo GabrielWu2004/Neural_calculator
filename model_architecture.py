@@ -80,6 +80,10 @@ class arithmaticTransformer(nn.Module):
     self.attentionBlocks = nn.Sequential(*[attentionBlock(model_size, num_heads) for _ in range(num_blocks)])
     self.linear = nn.Linear(model_size, vocab_size)
 
+  def to(self, device):
+    self.device = device
+    return super().to(device)
+
   def forward(self, x):
     """
     x: (B, L)

@@ -153,9 +153,13 @@ def get_dataloader(dir, batch_size, mode="train"):
   """
   vocab_size, encode, decode = tokenizer(dir)
   if mode == "eval":
-    dataset = evalDataset(dir, decode)
+    dataset = evalDataset(dir, encode)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
-    return dataloader
+    return vocab_size, encode, decode, dataloader
+  elif mode == "train_single":
+    dataset = trainingDataset(dir, encode)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+    return vocab_size, encode, decode, dataloader
   dataset = trainingDataset(dir, encode)
   length_to_indices = group_by_length(dataset)
   batch_sampler = bucketSampler(length_to_indices, batch_size)
@@ -164,15 +168,18 @@ def get_dataloader(dir, batch_size, mode="train"):
 
 
 if __name__ == "__main__":
-  generate_data_simple(1_000, 100, "data/training_data_1k.txt")
+  # generate_data_simple(1_000_000, 100, "data/training_data_1M.txt")
   # generate_data_simple(100, 100, "data/eval_data_100.txt")
-  # length_count = analyze_line_lengths("data/training_data_100k.txt")
-  # plot_length_distribution(length_count)
+  length_count = analyze_line_lengths("data/training_data_100k.txt")
+  plot_length_distribution(length_count)
   # vocab_size, encode, decode = tokenizer("data/training_data_100k.txt")
   # training_dataset = trainingDataset("data/training_data_100k.txt", encode)
   # length_to_indices = group_by_length(training_dataset)
-  vocab_size, encode, decode, train_dataloader = get_dataloader("data/training_data_1k.txt", batch_size=64)
+  vocab_size, encode, decode, train_dataloader = get_dataloader("data/training_data_1k.txt", batch_size=None, mode="train_single")
   for idx, (batch_x, batch_y) in enumerate(train_dataloader):
     print("batch", idx)
     print(batch_x.shape)
     print(batch_y.shape)
+    if idx > 10:
+      break
+  pass

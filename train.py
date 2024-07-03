@@ -1,7 +1,8 @@
 import numpy as np
+import os
 from tqdm import tqdm
 from model_architecture import arithmaticTransformer
-from data_generation import tokenizer, trainingDataset
+from data_generation import tokenizer, trainingDataset, get_dataloader
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,44 +10,97 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 
-def train(model, dataloader, optimizer, criterion, device, report_interval=10, max_iter=1000):
+def save_checkpoint(model, optimizer, epoch, loss, checkpoint_path):
+  checkpoint = {
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+    'epoch': epoch,
+    'loss': loss
+  }
+  torch.save(checkpoint, checkpoint_path)
+
+
+def load_checkpoint(checkpoint_path, model, optimizer):
+  checkpoint = torch.load(checkpoint_path)
+  model.load_state_dict(checkpoint['model_state_dict'])
+  optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+  epoch = checkpoint['epoch']
+  loss = checkpoint['loss']
+  return model, optimizer, epoch, loss
+
+
+def train(model, dataloader, optimizer, criterion, device, report_interval=10, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+  # Make checkpoint directory
+  if not os.path.exists(checkpoint_dir):
+    os.makedirs(checkpoint_dir)
+  
+  # Resume from checkpoint
+  start_iter = 0
+  if resume_checkpoint:
+    model, optimizer, start_iter, _ = load_checkpoint(checkpoint_path, model, optimizer)
+    print(f"Resuming training from iteration {start_iter}")
+  else:
+    print("Training model from scratch")
+  # Training loop
   model.to(device)
   model.train()
   total = len(dataloader)
-  with tqdm(enumerate(dataloader), total=total) as pbar:
+
+  print("Training begin")
+  with tqdm(enumerate(dataloader, start=start_iter), total=total) as pbar:
     for iter, (batch_x, batch_y) in pbar:
       total_loss = 0
       batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,)
       optimizer.zero_grad()
       out = model.forward(batch_x)[:, -1, :] # (B, vocab_size)
-      # print("output shape:", out.shape)
-      # print("target shape:", batch_y.shape)
       loss = criterion(out, batch_y)
       total_loss += loss.item()
       loss.backward()
       optimizer.step()
+
       if (iter+1) % report_interval == 0:
         pbar.set_description(f"loss: {total_loss/report_interval}")
         total_loss = 0
+      
+      if save_checkpoint:
+        if (iter+1) % checkpoint_interval == 0:
+          checkpoint_path = os.path.join(checkpoint_dir, f'checkpoint_iter_{iter+1}.pth')
+          save_checkpoint(model, optimizer, iter+1, loss.item(), checkpoint_path)
+
       if (iter+1) == max_iter:
         print("Maximum iteration reached")
         break
 
-if __name__ == "__main__":
-  vocab_size, encode, decode = tokenizer("data/training_data_100k.txt")
-  training_dataset = trainingDataset("data/training_data_100k.txt", encode)
-  training_dataloader = DataLoader(training_dataset, batch_size=1, shuffle=True)
-  device = 'cuda' if torch.cuda.is_available() else 'cpu'
-  print(device)
+  final_model_path = os.path.join(checkpoint_dir, f'final_model_{total}.pth')
+  torch.save(model, final_model_path)
+  print(f"Final model saved to {final_model_path}")
 
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+def main():
+  # Load data
+  vocab_size, _, _, dataloader = get_dataloader("data/training_data_100k.txt", batch_size=None, mode="train_single")
+  device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+  # Build model
   params = {"vocab_size": vocab_size,
           "context_length": 100,
-          "model_size": 8,
+          "model_size": 16,
           "num_heads": 4,
           "num_blocks": 6,
           "device": device}
   model = arithmaticTransformer(**params)
+  print(f'The model has {count_parameters(model):,} trainable parameters')
+  
+  # Train model
   learning_rate = 1e-4
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   criterion = nn.CrossEntropyLoss()
-  train(model, training_dataloader, optimizer, criterion, device)
+  train(model, dataloader, optimizer, criterion, device)
+
+
+if __name__ == "__main__":
+  main()
