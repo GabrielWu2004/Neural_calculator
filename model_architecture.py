@@ -114,3 +114,22 @@ class arithmaticTransformer(nn.Module):
         break
       idx += 1
     return x[:, L:]
+  
+  def generate_padded(self, x, encode):
+    """
+    x: (B, L)
+    return: (B,L') where L' is the length of the generated sequence
+    """
+    B, L = x.shape
+    idx = 0
+    out = torch.empty((B, 0))
+    while idx < self.context_length:
+      logits = self.forward(x) # (B, L, vocab_size)
+      last_logit = logits[:, -1, :] # (B, vocab_size)
+      out_token = torch.argmax(last_logit, dim=-1).unsqueeze(1) # (B, 1)
+      x = torch.cat([x[:, 1:], out_token], dim=1) # (B, L)
+      out = torch.cat([out, out_token], dim=1) # (B, L') -> (B, L'+1)
+      if out_token == encode("\n")[0]:
+        break
+      idx += 1
+    return out
