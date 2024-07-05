@@ -13,7 +13,7 @@ from train import count_parameters
 def main():
   vocab_size, encode, decode, dataloader = get_dataloader("data/eval_data_100.txt", mode="eval", batch_size=None, max_length=10)
   device = 'cpu'
-  final_model_path = "model/final_model_53164.pth"
+  final_model_path = "model/model_100kD_253kP.pth"
   model = torch.load(final_model_path).to(device)
   model.device = device
   print(f"The model has {count_parameters(model):,} trainable parameters")
