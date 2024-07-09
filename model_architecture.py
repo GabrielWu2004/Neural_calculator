@@ -79,6 +79,15 @@ class arithmaticTransformer(nn.Module):
     self.positinalEmbedding = nn.Embedding(context_length, model_size)
     self.attentionBlocks = nn.Sequential(*[attentionBlock(model_size, num_heads) for _ in range(num_blocks)])
     self.linear = nn.Linear(model_size, vocab_size)
+    self.apply(self._init_weights)
+  
+  def _init_weights(self, module):
+    if isinstance(module, nn.Linear):
+      torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
+      if module.bias is not None:
+        torch.nn.init.zeros_(module.bias)
+    elif isinstance(module, nn.Embedding):
+      torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
   def to(self, device):
     self.device = device
@@ -102,6 +111,7 @@ class arithmaticTransformer(nn.Module):
     """
     x: (B, L)
     return: (B,L') where L' is the length of the generated sequence
+    Use this when the input sequence doesn't have padding
     """
     B, L = x.shape
     idx = L
@@ -119,6 +129,7 @@ class arithmaticTransformer(nn.Module):
     """
     x: (B, L)
     return: (B,L') where L' is the length of the generated sequence
+    Use this when the input sequence is front-padded into equal length. 
     """
     B, L = x.shape
     idx = 0

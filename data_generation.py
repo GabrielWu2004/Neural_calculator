@@ -134,6 +134,7 @@ class bucketSampler(torch.utils.data.Sampler):
     self.length_to_indices = length_to_indices
     self.batch_size = batch_size
     self.buckets = list(length_to_indices.values()) # a list of buckets, each one is a list
+    self.num_buckets = len(self.buckets)
   
   def __iter__(self):
     """
@@ -207,6 +208,30 @@ class trainingDatasetPadded(Dataset):
 
 
 class evalDataset(Dataset):
+  """ Without front padding """
+  def __init__(self, data_dest, encode, max_length):
+    self.x = []
+    self.y = []
+    with open(data_dest, "r", encoding='utf-8') as f:
+      lines = f.readlines()
+      for line in lines:
+        question, answer = line.split("=")
+        self.x.append(encode(question + "="))
+        self.y.append(encode(answer))
+
+  def __len__(self):
+    return len(self.x)
+
+  def __getitem__(self, idx):
+    if isinstance(idx, list):
+      batch_x = torch.tensor([self.x[i] for i in idx])
+      batch_y = torch.tensor([self.y[i] for i in idx])
+      return batch_x, batch_y
+    return torch.tensor(self.x[idx]), torch.tensor(self.y[idx])
+
+
+class evalDatasetPadded(Dataset):
+  """" With front padding """
   def __init__(self, data_dest, encode, max_length):
     self.x = []
     self.y = []
@@ -239,6 +264,9 @@ def get_dataloader(dir, mode, batch_size, max_length, shuffle=True):
   if mode == "eval":
     dataset = evalDataset(dir, encode, max_length)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=shuffle)
+  elif mode == "eval_padded":
+    dataset = evalDatasetPadded(dir, encode, max_length)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=shuffle)
   elif mode == "train_single":
     dataset = trainingDataset(dir, encode)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=shuffle)
@@ -266,21 +294,22 @@ def main_analyze_data():
 
 
 def main_generate_data():
-  # generate_data_simple(1_000_000, 100, "data/training_data_1M.txt")
+  # generate_data_simple(100, 10, "data/toy_eval_data_100.txt")
   # generate_data_simple(100, 100, "data/eval_data_100.txt")
-  generate_data_pad(100_000, 100, "data/training_data_pad_100K.txt", 10, "front")
+  # generate_data_pad(100_000, 100, "data/training_data_pad_100K.txt", 10, "front")
   # length_count = analyze_line_lengths("data/training_data_100k.txt")
   # plot_length_distribution(length_count)
   
-  vocab_size, encode, decode, train_dataloader = get_dataloader("data/training_data_1k.txt", mode="train_padded", batch_size=2, max_length=10)
+  vocab_size, encode, decode, train_dataloader = get_dataloader("data/toy_data_10k.txt", mode="train_single", batch_size=1, max_length=10, shuffle=False)
   for idx, (batch_x, batch_y) in enumerate(train_dataloader):
     print("batch", idx)
-    print(batch_x)
-    print(batch_y)
+    print(batch_x, decode(batch_x[0].tolist()))
+    print(batch_y, decode(batch_y.tolist()))
+    print()
     if idx > 10:
       break
-  # a = torch.tensor(1).tolist()
-  # print(type(a))
+  # # a = torch.tensor(1).tolist()
+  # # print(type(a))
   
   pass
 

@@ -29,7 +29,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
   return model, optimizer, epoch, loss
 
 
-def train(model, dataloader, optimizer, scheduler, criterion, device, model_name, report_interval=10, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+def train(model, dataloader, optimizer, scheduler, criterion, device, model_name, report_interval=100, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
   # Make checkpoint directory
   if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
@@ -45,17 +45,23 @@ def train(model, dataloader, optimizer, scheduler, criterion, device, model_name
     print(f"Resuming training from iteration {start_iter}")
   else:
     print("Training model from scratch")
+  
   # Training loop
   model.to(device)
-  # optimizer.to(device)
   model.train()
   total = len(dataloader)
+  # num_streams = 16
+  # streams = [torch.cuda.Stream() for _ in range(num_streams)] # Create CUDA streams
 
   print("Training begin")
   with tqdm(enumerate(dataloader, start=start_iter), total=total) as pbar:
     for iter, (batch_x, batch_y) in pbar:
       total_loss = 0
       batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,)
+      
+      # Distribute batches across streams
+      # stream_idx = iter % num_streams
+      # with torch.cuda.stream(streams[stream_idx]):
       optimizer.zero_grad()
       out = model.forward(batch_x)[:, -1, :] # (B, vocab_size)
       loss = criterion(out, batch_y)
@@ -63,7 +69,10 @@ def train(model, dataloader, optimizer, scheduler, criterion, device, model_name
       loss.backward()
       optimizer.step()
       scheduler.step()
+      # if (iter + 1) % num_streams == 0:
+      #   torch.cuda.synchronize()
 
+      # Reporting loss
       if (iter+1) % report_interval == 0:
         pbar.set_description(f"loss: {total_loss/report_interval}")
         total_loss = 0
@@ -87,7 +96,7 @@ def count_parameters(model):
 def main():
   # Load data
   max_length = 10
-  vocab_size, _, _, dataloader = get_dataloader("data/training_data_100k.txt", mode="train_padded", batch_size=64, max_length=max_length, shuffle=True)
+  vocab_size, _, _, dataloader = get_dataloader("data/toy_data_10k.txt", mode="train_single", batch_size=1, max_length=max_length)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
   # Build model
@@ -95,7 +104,7 @@ def main():
           "context_length": max_length,
           "model_size": 32,
           "num_heads": 8,
-          "num_blocks": 20,
+          "num_blocks": 6,
           "device": device}
   model = arithmaticTransformer(**params)
   print(f'The model has {count_parameters(model):,} trainable parameters')
@@ -105,7 +114,7 @@ def main():
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.05)
   criterion = nn.CrossEntropyLoss()
-  train(model, dataloader, optimizer, scheduler, criterion, device, model_name="model_100kD_253kP")
+  train(model, dataloader, optimizer, scheduler, criterion, device, model_name="testing_model")
 
 
 if __name__ == "__main__":

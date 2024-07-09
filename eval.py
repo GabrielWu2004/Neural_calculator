@@ -10,10 +10,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from train import count_parameters
 
-def main():
-  vocab_size, encode, decode, dataloader = get_dataloader("data/eval_data_100.txt", mode="eval", batch_size=None, max_length=10)
+def eval_single():
+  vocab_size, encode, decode, dataloader = get_dataloader("data/toy_eval_data_100.txt", mode="eval", batch_size=None, max_length=100)
   device = 'cpu'
-  final_model_path = "model/model_100kD_253kP.pth"
+  final_model_path = "model/final_model_53164.pth"
   model = torch.load(final_model_path).to(device)
   model.device = device
   print(f"The model has {count_parameters(model):,} trainable parameters")
@@ -23,7 +23,7 @@ def main():
   for batch_x, batch_y in dataloader:
     total +=1 
     print(decode(batch_x.tolist()[0]).strip())
-    model_output = decode(model.generate_padded(batch_x, encode).tolist()[0][:-1])
+    model_output = decode(model.generate(batch_x, encode).tolist()[0][:-1])
     true_output = decode(batch_y.tolist()[0][:-1])
     print("True output:", true_output)
     print("model output:", model_output)
@@ -33,4 +33,4 @@ def main():
   print(f"score: {correct}/{total}")
 
 if __name__ == "__main__":
-  main()
+  eval_single()
