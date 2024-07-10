@@ -24,6 +24,22 @@ def generate_data_simple(num_samples, upper_bound, dest):
         string = f"{num1}-{num2}={res}"
       f.write(f"{string}\n")
 
+def generate_data_balanced(dest, num_digits=3):
+  """
+  Only contains addition.
+  Default operant length: 3 digits
+  Default result length: 4 digits
+  """
+  with open(dest, "w") as f:
+    for num1 in range(10**(num_digits-1), 10**num_digits):
+      for num2 in range(10**(num_digits-1), 10**num_digits):
+        res = num1 + num2
+        if res < 1000:
+          string = f"${num1}+{num2}=0{res}$"
+        else:
+          string = f"${num1}+{num2}={res}$"
+        f.write(f"{string}\n")
+
 def generate_data_pad(num_samples, upper_bound, dest, max_length, pad):
   """ 
   Generate equations with only two operands
@@ -78,6 +94,39 @@ def plot_length_distribution(length_counts):
   plt.xlabel('Line Length')
   plt.ylabel('Frequency')
   plt.title('Distribution of Line Lengths')
+  plt.show()
+
+def plot_digit_distribution(dir):
+  """
+  Plot digit distribution at each position directly from txt
+  Currently only works for 3-digit additions
+  """
+  with open(dir, mode="r") as f:
+    lines = f.readlines()
+  first_line = lines[0]
+  equal_index = first_line.find("=")
+  digit_dict = collections.defaultdict(list) # index -> list of digits at that index
+  digit_counts = collections.defaultdict(dict) # index -> dictionary counter of digits at that index
+  
+  for idx in range(equal_index+1, equal_index+5):
+    for line in lines:
+      digit_dict[idx].append(line[idx])
+    digit_counts[idx] = collections.Counter(digit_dict[idx])
+
+  # print(digit_counts[9]) 
+  fig, axs = plt.subplots(2, 2, figsize=(12, 9))
+  fig.suptitle('Target Token distribution')
+  axs = axs.flatten()
+  for i, (key, sub_dict) in enumerate(digit_counts.items()):
+    keys = list(sub_dict.keys())
+    values = list(sub_dict.values())
+    axs[i].bar(keys, values)
+    axs[i].set_title(f'Distribution of token {key}')
+    axs[i].set_xlabel('Keys')
+    axs[i].set_ylabel('Counts')
+    axs[i].set_xticks(list(range(10)))  # Set the x-ticks to 0 through 13
+    axs[i].set_xticklabels(list(range(10)))  # Set the x-tick labels to 0 through 13
+  plt.tight_layout(rect=[0, 0, 1, 0.96])
   plt.show()
 
 def plot_token_distribution(token_counters, vocab_size):
@@ -297,17 +346,19 @@ def main_generate_data():
   # generate_data_simple(100, 10, "data/toy_eval_data_100.txt")
   # generate_data_simple(100, 100, "data/eval_data_100.txt")
   # generate_data_pad(100_000, 100, "data/training_data_pad_100K.txt", 10, "front")
+  # generate_data_balanced("data/3_digits_addition_padded.txt")
   # length_count = analyze_line_lengths("data/training_data_100k.txt")
   # plot_length_distribution(length_count)
+  plot_digit_distribution("data/3_digits_addition_padded.txt")
   
-  vocab_size, encode, decode, train_dataloader = get_dataloader("data/toy_data_10k.txt", mode="train_single", batch_size=1, max_length=10, shuffle=False)
-  for idx, (batch_x, batch_y) in enumerate(train_dataloader):
-    print("batch", idx)
-    print(batch_x, decode(batch_x[0].tolist()))
-    print(batch_y, decode(batch_y.tolist()))
-    print()
-    if idx > 10:
-      break
+  # vocab_size, encode, decode, train_dataloader = get_dataloader("data/toy_data_10k.txt", mode="train_single", batch_size=1, max_length=10, shuffle=False)
+  # for idx, (batch_x, batch_y) in enumerate(train_dataloader):
+  #   print("batch", idx)
+  #   print(batch_x, decode(batch_x[0].tolist()))
+  #   print(batch_y, decode(batch_y.tolist()))
+  #   print()
+  #   if idx > 10:
+  #     break
   # # a = torch.tensor(1).tolist()
   # # print(type(a))
   

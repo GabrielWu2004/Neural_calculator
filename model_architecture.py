@@ -9,7 +9,7 @@ class attentionHead(nn.Module):
     self.key = nn.Linear(model_size, head_size, bias=False)
     self.query = nn.Linear(model_size, head_size, bias=False)
     self.value = nn.Linear(model_size, head_size, bias=False)
-    self.softmax = nn.Softmax(dim=1)
+    self.softmax = nn.Softmax(dim=-1)
 
   def forward(self, x):
     """
@@ -109,8 +109,8 @@ class arithmaticTransformer(nn.Module):
 
   def generate(self, x, encode):
     """
-    x: (B, L)
-    return: (B,L') where L' is the length of the generated sequence
+    x: (B, L), technically only supports batch size of 1
+    return: (B, L') where L' is the length of the generated sequence
     Use this when the input sequence doesn't have padding
     """
     B, L = x.shape

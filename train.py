@@ -63,8 +63,12 @@ def train(model, dataloader, optimizer, scheduler, criterion, device, model_name
       # stream_idx = iter % num_streams
       # with torch.cuda.stream(streams[stream_idx]):
       optimizer.zero_grad()
+      # print("input:", batch_x)
+      # print("target:", batch_y)
       out = model.forward(batch_x)[:, -1, :] # (B, vocab_size)
+      # print("out:", out, out.shape)
       loss = criterion(out, batch_y)
+      # print("loss:", loss)
       total_loss += loss.item()
       loss.backward()
       optimizer.step()
@@ -102,7 +106,7 @@ def main():
   # Build model
   params = {"vocab_size": vocab_size,
           "context_length": max_length,
-          "model_size": 32,
+          "model_size": 16,
           "num_heads": 8,
           "num_blocks": 6,
           "device": device}
@@ -114,7 +118,7 @@ def main():
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.05)
   criterion = nn.CrossEntropyLoss()
-  train(model, dataloader, optimizer, scheduler, criterion, device, model_name="testing_model")
+  train(model, dataloader, optimizer, scheduler, criterion, device, max_iter=5e3, model_name="testing_model")
 
 
 if __name__ == "__main__":
