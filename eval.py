@@ -2,25 +2,25 @@ import numpy as np
 import os
 from tqdm import tqdm
 from model_architecture import arithmaticTransformer
-from data_generation import tokenizer, trainingDataset, get_dataloader
+from data import tokenizer, trainingDataset, get_dataloader
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from train import count_parameters
+from train import count_parameters, val
 
 def eval_single():
-  vocab_size, encode, decode, dataloader = get_dataloader("data/toy_eval_data_100.txt", mode="eval", batch_size=None, max_length=100)
+  vocab_size, encode, decode, dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1)
   device = 'cpu'
-  final_model_path = "model/final_model_53164.pth"
+  final_model_path = "model/testing_model.pth"
   model = torch.load(final_model_path).to(device)
   model.device = device
   print(f"The model has {count_parameters(model):,} trainable parameters")
   model.eval()
   total = 0
   correct = 0
-  for batch_x, batch_y in dataloader:
+  for idx, (batch_x, batch_y) in enumerate(dataloader):
     total +=1 
     print(decode(batch_x.tolist()[0]).strip())
     model_output = decode(model.generate(batch_x, encode).tolist()[0][:-1])
@@ -30,7 +30,22 @@ def eval_single():
     print()
     if model_output == true_output:
       correct += 1
+    if idx > 5:
+      break
   print(f"score: {correct}/{total}")
+
+def eval_batched():
+  data_dir = "data/3_digits_addition_padded.txt"
+  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
+  final_model_path = "model/testing_model.pth"
+  device = 'cuda' if torch.cuda.is_available() else 'cpu'
+  model = torch.load(final_model_path).to(device)
+  print(f'The model has {count_parameters(model):,} trainable parameters')
+  
+  # Train model
+  val(model, val_dataloader, device)
 
 if __name__ == "__main__":
   eval_single()
+  # eval_batched()
+  pass

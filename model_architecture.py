@@ -2,14 +2,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class attentionHead(nn.Module):
-  def __init__(self, model_size, head_size):
+  def __init__(self, model_size, head_size, context_length):
     super(attentionHead, self).__init__()
     self.key = nn.Linear(model_size, head_size, bias=False)
     self.query = nn.Linear(model_size, head_size, bias=False)
     self.value = nn.Linear(model_size, head_size, bias=False)
-    self.softmax = nn.Softmax(dim=-1)
+    self.register_buffer("tril", torch.tril(torch.ones(context_length, context_length)))
 
   def forward(self, x):
     """
@@ -20,16 +19,18 @@ class attentionHead(nn.Module):
     key = self.key(x) # (B, L, H)
     query = self.query(x) # (B, L, H)
     value = self.value(x) # (B, L, H)
-    attention = self.softmax(torch.matmul(query, key.transpose(1, 2))*N**0.5) # (B, L, L)
+    attention = torch.matmul(query, key.transpose(1, 2))*N**0.5 # (B, L, L)
+    attention.masked_fill(self.tril[:L, :L] == 0, float('-inf'))
+    attention = F.softmax(attention, dim=-1)
     return torch.matmul(attention, value) # (B, L, H)
 
 class multiHeadAttention(nn.Module):
-  def __init__(self, model_size, num_heads):
+  def __init__(self, model_size, num_heads, context_length):
     super(multiHeadAttention, self).__init__()
     if model_size % num_heads != 0:
       raise ValueError("model_size must be divisible by head_size")
     head_size = model_size // num_heads
-    self.heads = nn.ModuleList([attentionHead(model_size, head_size) for _ in range(num_heads)])
+    self.heads = nn.ModuleList([attentionHead(model_size, head_size, context_length) for _ in range(num_heads)])
     self.linear = nn.Linear(model_size, model_size)
 
   def forward(self, x):
@@ -54,9 +55,9 @@ class feedForward(nn.Module):
     return self.linear2(self.relu(self.linear1(x)))
 
 class attentionBlock(nn.Module):
-  def __init__(self, model_size, num_heads):
+  def __init__(self, model_size, num_heads, context_length):
     super(attentionBlock, self).__init__()
-    self.multiHeadAttention = multiHeadAttention(model_size, num_heads)
+    self.multiHeadAttention = multiHeadAttention(model_size, num_heads, context_length)
     self.feedForward = feedForward(model_size)
     self.norm1 = nn.LayerNorm(model_size)
     self.norm2 = nn.LayerNorm(model_size)
@@ -77,7 +78,7 @@ class arithmaticTransformer(nn.Module):
     self.device = device
     self.embedding = nn.Embedding(vocab_size, model_size)
     self.positinalEmbedding = nn.Embedding(context_length, model_size)
-    self.attentionBlocks = nn.Sequential(*[attentionBlock(model_size, num_heads) for _ in range(num_blocks)])
+    self.attentionBlocks = nn.Sequential(*[attentionBlock(model_size, num_heads, context_length) for _ in range(num_blocks)])
     self.linear = nn.Linear(model_size, vocab_size)
     self.apply(self._init_weights)
   
@@ -104,8 +105,7 @@ class arithmaticTransformer(nn.Module):
     x = token_embd + pos_embd # (B, L, model_size)
     x = self.attentionBlocks(x) # (B, L, model_size)
     return self.linear(x) # (B, L, vocab_size)
-    # Comment: each token in x is predicting what the next token is
-    # Technically the final linear layer only needs to apply to the last token in x
+    # Note: each token in x is predicting what the next token is
 
   def generate(self, x, encode):
     """
@@ -116,13 +116,19 @@ class arithmaticTransformer(nn.Module):
     B, L = x.shape
     idx = L
     while idx < self.context_length:
-      logits = self.forward(x) # (B, L, vocab_size)
+      print("input:", x)
+      logits = self.forward(x) # (B, L', vocab_size)
       last_logit = logits[:, -1, :] # (B, vocab_size)
+      print("last logits:", last_logit)
       out_token = torch.argmax(last_logit, dim=-1) # (B,)
+      print("output:", out_token)
       x = torch.cat([x, out_token.unsqueeze(1)], dim=1) # (B, L+1)
-      if out_token == encode("\n")[0]:
+      print("new sequence:", x)
+      if out_token == encode("$")[0]:
         break
       idx += 1
+      print()
+    print("return sequence:", x[:, L:])
     return x[:, L:]
   
   def generate_padded(self, x, encode):
