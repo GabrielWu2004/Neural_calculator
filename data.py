@@ -213,7 +213,7 @@ def main_generate_data():
   # length_count = analyze_line_lengths("data/training_data_100k.txt")
   # plot_length_distribution(length_count)
   # plot_digit_distribution("data/3_digits_addition_padded.txt")
-  # data_dir = "data/3_digits_addition_padded.txt"
+  data_dir = "data/3_digits_addition_padded.txt"
   # vocab_size, encode, decode = tokenizer(data_dir)
   # dataset = trainingDataset(data_dir, encode)
   # print("vocab size:", vocab_size)
@@ -224,15 +224,15 @@ def main_generate_data():
   #   print("target:", decode(dataset[i][1].tolist()))
   #   print(dataset[i])
 
-  # vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
-  # print("train")
-  # for idx, (batch_x, batch_y) in enumerate(train_dataloader):
-  #   print("batch", idx)
-  #   print(batch_x)
-  #   print(batch_y)
-  #   print()
-  #   if idx > 3:
-  #     break
+  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
+  print("train")
+  for idx, (batch_x, batch_y) in enumerate(train_dataloader):
+    print("batch", idx)
+    print(batch_x.shape)
+    print(batch_y.shape)
+    print()
+    if idx > 3:
+      break
   # print("eval")
   # for idx, (batch_x, batch_y) in enumerate(val_dataloader):
   #   print("batch", idx)
@@ -242,16 +242,16 @@ def main_generate_data():
   #   if idx > 3:
   #     break
 
-  vocab_size, encode, decode, test_dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1, shuffle=False)
-  display_tokenizer(vocab_size, decode)
-  for idx, (batch_x, batch_y) in enumerate(test_dataloader):
-    print("batch", idx)
-    print(batch_x)
-    print(batch_y)
-    print()
-    if idx > 3:
-      break
-  pass
+  # vocab_size, encode, decode, test_dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1, shuffle=False)
+  # display_tokenizer(vocab_size, decode)
+  # for idx, (batch_x, batch_y) in enumerate(test_dataloader):
+  #   print("batch", idx)
+  #   print(batch_x)
+  #   print(batch_y)
+  #   print()
+  #   if idx > 3:
+  #     break
+  # pass
 
 
 if __name__ == "__main__":

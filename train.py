@@ -93,7 +93,7 @@ def train(model, dataloader, optimizer, scheduler, criterion, device, model_name
   print(f"Final model saved to {final_model_path}")
 
 
-def val(model, dataloader, device):
+def val(model, dataloader, device, decode):
   model.to(device)
   model.eval()
   total = 0
@@ -106,8 +106,42 @@ def val(model, dataloader, device):
     num_correct += torch.sum(matching_output).item()
     total += batch_x.shape[0]
     print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
+    if idx == 0:
+      for item in range(logits.shape[0]):
+        print("Model output:", decode(logits[item].tolist()))
+        print("Correct answer:", decode(batch_y[item].tolist()))
+
   print(f"Total: {num_correct}/{total}")
 
+def val_iter(model, dataloader, device, decode):
+  model.to(device)
+  model.eval()
+  total = 0
+  num_correct = 0
+  for idx, (batch_x, batch_y) in enumerate(dataloader):
+    batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L) and (B, L')
+    out = torch.zeros(batch_y.shape).to(device)
+    # print("expected output shape:", out.shape)
+    for i in range(batch_x.shape[1]-equal_index):
+      input = batch_x[:, :equal_index+i+1]
+      # print("input shape:", input.shape)
+      print("actual input:", decode(input[0].tolist()))
+      logits = model.forward(input)[:, [-1], :] # (B, 1, vocab_size)
+      # print("logit shape:", logits.shape)
+      logits = torch.argmax(logits, dim=-1) # (B, 1)
+      # print("logit shape after selection:", logits.shape)
+      print("model output:", decode(logits[0].tolist()))
+      out[:, i] = logits.squeeze() # (B,)
+    matching_output = torch.all(out == batch_y, dim=1)
+    num_correct += torch.sum(matching_output).item()
+    total += batch_x.shape[0]
+    print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
+    if idx == 0:
+      for item in range(out.shape[0]):
+        print("Model output:", decode(out[item].tolist()))
+        print("Correct answer:", decode(batch_y[item].tolist()))
+    break
+  print(f"Total: {num_correct}/{total}")
 
 
 def count_parameters(model):
@@ -116,12 +150,12 @@ def count_parameters(model):
 
 def main():
   data_dir = "data/3_digits_addition_padded.txt"
-  vocab_size, _, _, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
+  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
   # Build model
   params = {"vocab_size": vocab_size,
-          "context_length": 15,
+          "context_length": 14,
           "model_size": 16,
           "num_heads": 8,
           "num_blocks": 6,
@@ -135,7 +169,7 @@ def main():
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.05)
   criterion = nn.CrossEntropyLoss()
   train(model, train_dataloader, optimizer, scheduler, criterion, device, max_iter=1e6, model_name="testing_model")
-  val(model, val_dataloader, device)
+  val(model, val_dataloader, device, decode)
 
 
 if __name__ == "__main__":

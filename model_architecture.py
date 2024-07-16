@@ -19,7 +19,7 @@ class attentionHead(nn.Module):
     key = self.key(x) # (B, L, H)
     query = self.query(x) # (B, L, H)
     value = self.value(x) # (B, L, H)
-    attention = torch.matmul(query, key.transpose(1, 2))*N**0.5 # (B, L, L)
+    attention = torch.matmul(query, key.transpose(-2, -1))*N**(-0.5) # (B, L, L)
     attention.masked_fill(self.tril[:L, :L] == 0, float('-inf'))
     attention = F.softmax(attention, dim=-1)
     return torch.matmul(attention, value) # (B, L, H)
@@ -77,7 +77,7 @@ class arithmaticTransformer(nn.Module):
     self.context_length = context_length
     self.device = device
     self.embedding = nn.Embedding(vocab_size, model_size)
-    self.positinalEmbedding = nn.Embedding(context_length, model_size)
+    self.positionalEmbedding = nn.Embedding(context_length, model_size)
     self.attentionBlocks = nn.Sequential(*[attentionBlock(model_size, num_heads, context_length) for _ in range(num_blocks)])
     self.linear = nn.Linear(model_size, vocab_size)
     self.apply(self._init_weights)
@@ -101,52 +101,31 @@ class arithmaticTransformer(nn.Module):
     """
     B, L = x.shape
     token_embd = self.embedding(x) # (B, L, model_size)
-    pos_embd = self.positinalEmbedding(torch.arange(L, device=self.device)) # (L, model_size)
+    pos_embd = self.positionalEmbedding(torch.arange(L, device=self.device)) # (L, model_size)
     x = token_embd + pos_embd # (B, L, model_size)
     x = self.attentionBlocks(x) # (B, L, model_size)
     return self.linear(x) # (B, L, vocab_size)
     # Note: each token in x is predicting what the next token is
 
+  @torch.no_grad()
   def generate(self, x, encode):
     """
-    x: (B, L), technically only supports batch size of 1
-    return: (B, L') where L' is the length of the generated sequence
-    Use this when the input sequence doesn't have padding
+    x: (1, L)
+    return: (1, L') where L' is the length of the generated sequence
     """
+    self.eval()
     B, L = x.shape
-    idx = L
-    while idx < self.context_length:
-      print("input:", x)
-      logits = self.forward(x) # (B, L', vocab_size)
-      last_logit = logits[:, -1, :] # (B, vocab_size)
-      print("last logits:", last_logit)
-      out_token = torch.argmax(last_logit, dim=-1) # (B,)
-      print("output:", out_token)
-      x = torch.cat([x, out_token.unsqueeze(1)], dim=1) # (B, L+1)
-      print("new sequence:", x)
-      if out_token == encode("$")[0]:
+    for _ in range(self.context_length - L):
+      # print("input:", x)
+      logits = self.forward(x) # (1, L', vocab_size)
+      last_logit = logits[:, -1, :] # (1, vocab_size)
+      # print("last logits:", last_logit)
+      out_token = torch.argmax(last_logit, dim=-1) # (1,)
+      # print("output:", out_token)
+      x = torch.cat([x, out_token.unsqueeze(1)], dim=1) # (1, L+1)
+      # print("new sequence:", x)
+      if out_token.item() == encode("$")[0]:
         break
-      idx += 1
-      print()
-    print("return sequence:", x[:, L:])
+      # print()
+    # print("return sequence:", x[:, L:])
     return x[:, L:]
-  
-  def generate_padded(self, x, encode):
-    """
-    x: (B, L)
-    return: (B,L') where L' is the length of the generated sequence
-    Use this when the input sequence is front-padded into equal length. 
-    """
-    B, L = x.shape
-    idx = 0
-    out = torch.empty((B, 0))
-    while idx < self.context_length:
-      logits = self.forward(x) # (B, L, vocab_size)
-      last_logit = logits[:, -1, :] # (B, vocab_size)
-      out_token = torch.argmax(last_logit, dim=-1).unsqueeze(1) # (B, 1)
-      x = torch.cat([x[:, 1:], out_token], dim=1) # (B, L)
-      out = torch.cat([out, out_token], dim=1) # (B, L') -> (B, L'+1)
-      if out_token == encode("\n")[0]:
-        break
-      idx += 1
-    return out

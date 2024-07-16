@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from train import count_parameters, val
+from train import count_parameters, val, val_iter
 
 def eval_single():
   vocab_size, encode, decode, dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1)
@@ -22,6 +22,7 @@ def eval_single():
   correct = 0
   for idx, (batch_x, batch_y) in enumerate(dataloader):
     total +=1 
+    batch_x, batch_y = batch_x.to(device), batch_y.to(device)
     print(decode(batch_x.tolist()[0]).strip())
     model_output = decode(model.generate(batch_x, encode).tolist()[0][:-1])
     true_output = decode(batch_y.tolist()[0][:-1])
@@ -30,8 +31,6 @@ def eval_single():
     print()
     if model_output == true_output:
       correct += 1
-    if idx > 5:
-      break
   print(f"score: {correct}/{total}")
 
 def eval_batched():
@@ -43,9 +42,9 @@ def eval_batched():
   print(f'The model has {count_parameters(model):,} trainable parameters')
   
   # Train model
-  val(model, val_dataloader, device)
+  val_iter(model, val_dataloader, device, decode)
 
 if __name__ == "__main__":
-  eval_single()
-  # eval_batched()
+  # eval_single()
+  eval_batched()
   pass
