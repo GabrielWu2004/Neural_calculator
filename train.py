@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 
 
 equal_index = 8 
+torch.manual_seed(1337)
 
 def save_checkpoint_fn(model, optimizer, epoch, loss, checkpoint_path):
   checkpoint = {
@@ -31,7 +32,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
   return model, optimizer, epoch, loss
 
 
-def train(model, dataloader, optimizer, scheduler, criterion, device, model_name, report_interval=100, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
   # Make checkpoint directory
   if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
@@ -70,7 +71,7 @@ def train(model, dataloader, optimizer, scheduler, criterion, device, model_name
       targets = batch_y.reshape(B*L)
       # print("output shape:", logits.shape)
       # print("target shape:", targets.shape)
-      loss = criterion(logits, targets)
+      loss = F.cross_entropy(logits, targets)
       total_loss += loss.item()
       loss.backward()
       optimizer.step()
@@ -152,11 +153,11 @@ def main():
   data_dir = "data/3_digits_addition_padded.txt"
   vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+  
   # Build model
   params = {"vocab_size": vocab_size,
           "context_length": 14,
-          "model_size": 16,
+          "model_size": 64,
           "num_heads": 8,
           "num_blocks": 6,
           "device": device}
@@ -167,9 +168,8 @@ def main():
   learning_rate = 5e-4
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.05)
-  criterion = nn.CrossEntropyLoss()
-  train(model, train_dataloader, optimizer, scheduler, criterion, device, max_iter=1e6, model_name="testing_model")
-  val(model, val_dataloader, device, decode)
+  train(model, train_dataloader, optimizer, scheduler, device, max_iter=1e6, model_name="testing_model")
+  val_iter(model, val_dataloader, device, decode)
 
 
 if __name__ == "__main__":
