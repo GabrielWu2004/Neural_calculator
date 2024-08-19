@@ -9,17 +9,16 @@ from data import tokenizer, trainingDataset, get_dataloader
 from torch.utils.data import DataLoader
 
 # hyperparameters
-batch_size = 256
+batch_size = 512
 block_size = 14
-# max_iters = 5000
+vocab_size = 14
 eval_interval = 500
-learning_rate = 3e-4 
+learning_rate = 5e-4 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# device = 'cpu'
-eval_iters = 200
-n_embd = 64
+eval_iters = 500
+n_embd = 384
 n_head = 8
-n_layer = 6
+n_layer = 20
 dropout = 0.2
 equal_index = 8
 
@@ -118,9 +117,7 @@ class TransformerModel(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
     
-    def forward(self, idx, targets=None):
-        # idx (B, T) (batch size, sentence length)
-        # logits (B, T, vocab_size)
+    def forward(self, idx):
         B, T = idx.shape
         
         tok_emb = self.token_embedding_table(idx) # (B, T, n_embd), T words in each batch, each word is a (1, n_embd) vector
@@ -128,17 +125,8 @@ class TransformerModel(nn.Module):
         x = tok_emb + pos_emb # (B, T, n_embd)
         x = self.blocks(x) # (B, T, n_embd)
         x = self.ln_f(x) # (B, T, n_embd)
-        logits = self.lm_head(x)[:, equal_index:, :]  # (B, T', vocab_size)
-        
-        if targets is None:
-            loss = None
-        else:
-            B, T, C = logits.shape
-            logits = logits.reshape(B*T, C)
-            targets = targets.reshape(B*T)
-            loss = F.cross_entropy(logits, targets)
-        
-        return logits, loss
+        logits = self.lm_head(x)
+        return logits
     
     def generate(self, idx, max_new_tokens):
         # input idx: (B, T)
@@ -160,58 +148,48 @@ class TransformerModel(nn.Module):
 
 
 
-
-data_dir = "data/3_digits_addition_padded.txt"
-vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=batch_size)
-
-model = TransformerModel()
-m = model.to(device)
-print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
-
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-
-for iter, (batch_x, batch_y) in enumerate(train_dataloader):
-    total_loss = 0
-    batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,L')
-    logits, loss = model.forward(batch_x, batch_y)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
-    total_loss += loss
-    if iter%500 == 0:
-        print(f"iter {iter} Loss: {total_loss}")
+if __name__ == "__main__":
+    data_dir = "data/3_digits_addition_padded.txt"
+    vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=batch_size)
+    model = TransformerModel()
+    m = model.to(device)
+    print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    for iter, (batch_x, batch_y) in enumerate(train_dataloader):
         total_loss = 0
-print("training complete")
+        batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,L')
+        optimizer.zero_grad()
+        logits = model.forward(batch_x)[:, equal_index:, :] 
+        B, L, C = logits.shape
+        logits = logits.reshape(B*L, C)
+        targets = batch_y.reshape(B*L)
+        loss = F.cross_entropy(logits, targets)
+        total_loss += loss.item()
+        loss.backward()
+        optimizer.step()
+        if iter%100 == 0:
+            print(f"iter {iter} Loss: {total_loss/100}")
+            total_loss = 0
+    print("training complete")
 
-print("autoregressive eval")
-model.to(device)
-model.eval()
-total = 0
-num_correct = 0
-for idx, (batch_x, batch_y) in enumerate(val_dataloader):
-    batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L) and (B, L')
-    out = torch.zeros(batch_y.shape).to(device)
-    # print("expected output shape:", out.shape)
-    for i in range(batch_x.shape[1]-equal_index):
-        input = batch_x[:, :equal_index+i+1]
-        # print("input shape:", input.shape)
-        # print("actual input:", decode(input[0].tolist()))
-        logits = model.forward(input)[0][:, [-1], :] # (B, 1, vocab_size)
-        # print("logit shape:", logits.shape)
-        logits = torch.argmax(logits, dim=-1) # (B, 1)
-        # print("logit shape after selection:", logits.shape)
-        # print("model output:", decode(logits[0].tolist()))
-        out[:, i] = logits.squeeze() # (B,)
-    matching_output = torch.all(out == batch_y, dim=1)
-    num_correct += torch.sum(matching_output).item()
-    total += batch_x.shape[0]
-    # print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
-    # if idx == 0:
-    #     for item in range(out.shape[0]):
-    #         print("Model output:", decode(out[item].tolist()))
-    #         print("Correct answer:", decode(batch_y[item].tolist()))
-print(f"Total: {num_correct}/{total}")
-print()
+    print("eval")
+    model.to(device)
+    model.eval()
+    total = 0
+    num_correct = 0
+    for idx, (batch_x, batch_y) in enumerate(val_dataloader):
+        batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L) and (B, L')
+        out = torch.zeros(batch_y.shape).to(device)
+        for i in range(batch_x.shape[1]-equal_index):
+            input = batch_x[:, :equal_index+i+1]
+            logits = model.forward(input)[:, [-1], :] # (B, 1, vocab_size)
+            logits = torch.argmax(logits, dim=-1) # (B, 1)
+            out[:, i] = logits.squeeze() # (B,)
+        matching_output = torch.all(out == batch_y, dim=1)
+        num_correct += torch.sum(matching_output).item()
+        total += batch_x.shape[0]
+    print(f"Total: {num_correct}/{total}")
+    print()
 
 # print("teacher forcing eval")
 # model.to(device)

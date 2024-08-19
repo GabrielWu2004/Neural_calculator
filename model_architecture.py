@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 dropout = 0.2
 context_length = 14
+torch.manual_seed(1337)
+
 class attentionHead(nn.Module):
   def __init__(self, model_size, head_size, context_length):
     super().__init__()
@@ -23,7 +25,7 @@ class attentionHead(nn.Module):
     query = self.query(x) # (B, L, H)
     value = self.value(x) # (B, L, H)
     attention = torch.matmul(query, key.transpose(-2, -1))*N**(-0.5) # (B, L, L)
-    attention.masked_fill(self.tril[:L, :L] == 0, float('-inf'))
+    attention = attention.masked_fill(self.tril[:L, :L] == 0, float('-inf'))
     attention = F.softmax(attention, dim=-1)
     attention = self.dropout(attention)
     return torch.matmul(attention, value) # (B, L, H)
@@ -103,19 +105,18 @@ class arithmaticTransformer(nn.Module):
     self.device = device
     return super().to(device)
 
-  def forward(self, x):
+  def forward(self, idx):
     """
     x: (B, L)
     return: (B, L, vocab_size)
     """
-    B, L = x.shape
-    token_embd = self.embedding(x) # (B, L, model_size)
+    B, L = idx.shape
+    token_embd = self.embedding(idx) # (B, L, model_size)
     pos_embd = self.positionalEmbedding(torch.arange(L, device=self.device)) # (L, model_size)
     x = self.ln(token_embd + pos_embd) # (B, L, model_size)
     x = self.attentionBlocks(x) # (B, L, model_size)
     return self.linear(x) # (B, L, vocab_size)
-    # Note: each token in x is predicting what the next token is
-
+  
   @torch.no_grad()
   def generate(self, x, encode):
     """

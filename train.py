@@ -2,6 +2,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 from model_architecture import arithmaticTransformer
+from debug import TransformerModel
 from data import tokenizer, trainingDataset, get_dataloader
 import torch
 import torch.nn as nn
@@ -10,7 +11,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 
-equal_index = 8 
+equal_index = 8
+context_length = 14 
 torch.manual_seed(1337)
 
 def save_checkpoint_fn(model, optimizer, epoch, loss, checkpoint_path):
@@ -53,24 +55,17 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   model.to(device)
   model.train()
   total = len(dataloader)
-  # num_streams = 16
-  # streams = [torch.cuda.Stream() for _ in range(num_streams)] # Create CUDA streams
-
+  
   print("Training begin")
   with tqdm(enumerate(dataloader, start=start_iter), total=total) as pbar:
     for iter, (batch_x, batch_y) in pbar:
       total_loss = 0
       batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,L')
-      # print("batch X shape:", batch_x.shape)
-      # print("batch Y shape:", batch_y.shape)
       optimizer.zero_grad()
       logits = model.forward(batch_x)[:, equal_index:, :] 
       B, L, C = logits.shape
-      # print("output shape before reshape:", logits.shape) # (B, L', vocab_size)
       logits = logits.reshape(B*L, C)
       targets = batch_y.reshape(B*L)
-      # print("output shape:", logits.shape)
-      # print("target shape:", targets.shape)
       loss = F.cross_entropy(logits, targets)
       total_loss += loss.item()
       loss.backward()
@@ -94,7 +89,10 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   print(f"Final model saved to {final_model_path}")
 
 
-def val(model, dataloader, device, decode):
+def val_tf(model, dataloader, device, decode):
+  """
+  Evaluation: teacher-forcing style
+  """
   model.to(device)
   model.eval()
   total = 0
@@ -106,43 +104,36 @@ def val(model, dataloader, device, decode):
     matching_output = torch.all(logits == batch_y, dim=1)
     num_correct += torch.sum(matching_output).item()
     total += batch_x.shape[0]
-    print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
-    if idx == 0:
-      for item in range(logits.shape[0]):
-        print("Model output:", decode(logits[item].tolist()))
-        print("Correct answer:", decode(batch_y[item].tolist()))
+    # print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
+    # Optionally print out model output versus correct answer
+    # if idx == 0:
+    #   for item in range(logits.shape[0]):
+    #     print("Model output:", decode(logits[item].tolist()))
+    #     print("Correct answer:", decode(batch_y[item].tolist()))
+  print(f"Teacher forcing inference result: {num_correct}/{total}")
 
-  print(f"Total: {num_correct}/{total}")
-
-def val_iter(model, dataloader, device, decode):
+def val_ar(model, dataloader, device, decode):
+  """ 
+  Evaluation: autoregressive style
+  """
   model.to(device)
   model.eval()
   total = 0
   num_correct = 0
   for idx, (batch_x, batch_y) in enumerate(dataloader):
-    batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L) and (B, L')
+    batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+    question = batch_x[:, :equal_index+1]
+    B, L = question.shape
     out = torch.zeros(batch_y.shape).to(device)
-    # print("expected output shape:", out.shape)
-    for i in range(batch_x.shape[1]-equal_index):
-      input = batch_x[:, :equal_index+i+1]
-      # print("input shape:", input.shape)
-      print("actual input:", decode(input[0].tolist()))
-      logits = model.forward(input)[:, [-1], :] # (B, 1, vocab_size)
-      # print("logit shape:", logits.shape)
+    for i in range(batch_y.shape[1]):
+      logits = model.forward(question)[:, [-1], :] # (B, 1, vocab_size)
       logits = torch.argmax(logits, dim=-1) # (B, 1)
-      # print("logit shape after selection:", logits.shape)
-      print("model output:", decode(logits[0].tolist()))
+      question = torch.cat([question, logits], dim=1)
       out[:, i] = logits.squeeze() # (B,)
     matching_output = torch.all(out == batch_y, dim=1)
     num_correct += torch.sum(matching_output).item()
     total += batch_x.shape[0]
-    print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
-    if idx == 0:
-      for item in range(out.shape[0]):
-        print("Model output:", decode(out[item].tolist()))
-        print("Correct answer:", decode(batch_y[item].tolist()))
-    break
-  print(f"Total: {num_correct}/{total}")
+  print(f"Autoregressive inference result: {num_correct}/{total}")
 
 
 def count_parameters(model):
@@ -151,25 +142,38 @@ def count_parameters(model):
 
 def main():
   data_dir = "data/3_digits_addition_padded.txt"
-  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
+  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=512)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
+  print(vocab_size)
   
   # Build model
   params = {"vocab_size": vocab_size,
           "context_length": 14,
-          "model_size": 64,
+          "model_size": 384,
           "num_heads": 8,
-          "num_blocks": 6,
+          "num_blocks": 20,
           "device": device}
-  model = arithmaticTransformer(**params)
-  print(f'The model has {count_parameters(model):,} trainable parameters')
-  
-  # Train model
+  final_model_path = 'model/testing_model.pth'
   learning_rate = 5e-4
-  optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-  scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.05)
-  train(model, train_dataloader, optimizer, scheduler, device, max_iter=1e6, model_name="testing_model")
-  val_iter(model, val_dataloader, device, decode)
+  # model = torch.load(final_model_path).to(device)
+  
+  # train model 1 - arithmatic transformer
+  model1 = arithmaticTransformer(**params)
+  print(f'Model 1 has {count_parameters(model1):,} trainable parameters')
+  optimizer1 = optim.AdamW(model1.parameters(), lr=learning_rate)
+  scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=100, gamma=0.95)
+  train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name="testing_model1")
+  val_tf(model1, val_dataloader, device, decode)
+  # val_ar(model1, val_dataloader, device, decode)
+  
+  # train model 2 - Andrej's transformer
+  model2 = TransformerModel()
+  print(f'Model 2 has {count_parameters(model2):,} trainable parameters')
+  optimizer2 = optim.AdamW(model2.parameters(), lr=learning_rate)
+  scheduler2 = optim.lr_scheduler.StepLR(optimizer2, step_size=2000, gamma=1)
+  # train(model2, train_dataloader, optimizer2, scheduler2, device, max_iter=1e6, report_interval=50, model_name="testing_model2")
+  # val_tf(model2, val_dataloader, device, decode)
+  # val_ar(model2, val_dataloader, device, decode)
 
 
 if __name__ == "__main__":
