@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from train import count_parameters, val, val_iter
+from train import count_parameters
 
 def eval_single():
   vocab_size, encode, decode, dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1)
