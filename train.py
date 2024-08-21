@@ -144,36 +144,26 @@ def main():
   data_dir = "data/3_digits_addition_padded.txt"
   vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=512)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
-  print(vocab_size)
+  print("vocabe size:", vocab_size)
   
   # Build model
+  model_name = "AT_1M"
   params = {"vocab_size": vocab_size,
           "context_length": 14,
-          "model_size": 384,
+          "model_size": 128,
           "num_heads": 8,
-          "num_blocks": 20,
+          "num_blocks": 6,
           "device": device}
-  final_model_path = 'model/testing_model.pth'
   learning_rate = 5e-4
-  # model = torch.load(final_model_path).to(device)
   
   # train model 1 - arithmatic transformer
   model1 = arithmaticTransformer(**params)
   print(f'Model 1 has {count_parameters(model1):,} trainable parameters')
   optimizer1 = optim.AdamW(model1.parameters(), lr=learning_rate)
-  scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=100, gamma=0.95)
-  train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name="testing_model1")
+  scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=1000, gamma=0.5)
+  # train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name=model_name)
   val_tf(model1, val_dataloader, device, decode)
   # val_ar(model1, val_dataloader, device, decode)
-  
-  # train model 2 - Andrej's transformer
-  model2 = TransformerModel()
-  print(f'Model 2 has {count_parameters(model2):,} trainable parameters')
-  optimizer2 = optim.AdamW(model2.parameters(), lr=learning_rate)
-  scheduler2 = optim.lr_scheduler.StepLR(optimizer2, step_size=2000, gamma=1)
-  # train(model2, train_dataloader, optimizer2, scheduler2, device, max_iter=1e6, report_interval=50, model_name="testing_model2")
-  # val_tf(model2, val_dataloader, device, decode)
-  # val_ar(model2, val_dataloader, device, decode)
 
 
 if __name__ == "__main__":

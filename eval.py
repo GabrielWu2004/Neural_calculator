@@ -13,7 +13,7 @@ from train import count_parameters, val, val_iter
 def eval_single():
   vocab_size, encode, decode, dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1)
   device = 'cpu'
-  final_model_path = "model/testing_model.pth"
+  final_model_path = "model/AT_1M.pth"
   model = torch.load(final_model_path).to(device)
   model.device = device
   print(f"The model has {count_parameters(model):,} trainable parameters")
@@ -33,18 +33,7 @@ def eval_single():
       correct += 1
   print(f"score: {correct}/{total}")
 
-def eval_batched():
-  data_dir = "data/3_digits_addition_padded.txt"
-  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=256)
-  final_model_path = "model/testing_model.pth"
-  device = 'cuda' if torch.cuda.is_available() else 'cpu'
-  model = torch.load(final_model_path).to(device)
-  print(f'The model has {count_parameters(model):,} trainable parameters')
-  
-  # Train model
-  val_iter(model, val_dataloader, device, decode)
+
 
 if __name__ == "__main__":
-  # eval_single()
-  eval_batched()
-  pass
+  eval_single()

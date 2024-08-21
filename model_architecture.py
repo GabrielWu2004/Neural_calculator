@@ -77,8 +77,8 @@ class attentionBlock(nn.Module):
     x: (B, L, H)
     return: (B, L, H)
     """
-    x = self.norm1(x + self.multiHeadAttention(x))
-    x = self.norm2(x + self.feedForward(x))
+    x = x + self.multiHeadAttention(self.norm1(x))
+    x = x + self.feedForward(self.norm2(x))
     return x
 
 class arithmaticTransformer(nn.Module):
@@ -113,20 +113,21 @@ class arithmaticTransformer(nn.Module):
     B, L = idx.shape
     token_embd = self.embedding(idx) # (B, L, model_size)
     pos_embd = self.positionalEmbedding(torch.arange(L, device=self.device)) # (L, model_size)
-    x = self.ln(token_embd + pos_embd) # (B, L, model_size)
+    x = token_embd + pos_embd # (B, L, model_size)
     x = self.attentionBlocks(x) # (B, L, model_size)
+    x = self.ln(x) # (B, L, model_size)
     return self.linear(x) # (B, L, vocab_size)
   
   @torch.no_grad()
   def generate(self, x, encode):
     """
+    Autoregressive generation
     x: (1, L)
     return: (1, L') where L' is the length of the generated sequence
     """
     self.eval()
     B, L = x.shape
     for _ in range(self.context_length - L):
-      # print("input:", x)
       logits = self.forward(x) # (1, L', vocab_size)
       last_logit = logits[:, -1, :] # (1, vocab_size)
       # print("last logits:", last_logit)
@@ -136,6 +137,4 @@ class arithmaticTransformer(nn.Module):
       # print("new sequence:", x)
       if out_token.item() == encode("$")[0]:
         break
-      # print()
-    # print("return sequence:", x[:, L:])
     return x[:, L:]
