@@ -147,23 +147,23 @@ def main():
   print("vocabe size:", vocab_size)
   
   # Build model
-  model_name = "AT_1M"
+  model_name = "AT_220K"
   params = {"vocab_size": vocab_size,
           "context_length": 14,
-          "model_size": 128,
+          "model_size": 96,
           "num_heads": 8,
-          "num_blocks": 6,
+          "num_blocks": 2,
           "device": device}
-  learning_rate = 5e-4
+  learning_rate = 1e-3
   
   # train model 1 - arithmatic transformer
   model1 = arithmaticTransformer(**params)
-  print(f'Model 1 has {count_parameters(model1):,} trainable parameters')
+  print(f'Model {model_name} has {count_parameters(model1):,} trainable parameters')
+  print(params)
   optimizer1 = optim.AdamW(model1.parameters(), lr=learning_rate)
   scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=1000, gamma=0.5)
-  # train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name=model_name)
+  train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name=model_name)
   val_tf(model1, val_dataloader, device, decode)
-  # val_ar(model1, val_dataloader, device, decode)
 
 
 if __name__ == "__main__":

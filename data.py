@@ -1,11 +1,66 @@
 import numpy as np
-import random
+import itertools
 import collections
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 
 ################## Useful Functions ##################
+
+def generate_data_complex(dest, num_digits=2, num_operands=4):
+  """
+  Geenerate strings of complex arithmetic expressions with addition and subtraction.
+  Number of operants can be arbitrarily specified
+  Front and back delimitor "$" included.
+  Input padded to "num_digits" digits. Output padded to "num_digits + 1" digits with leading sign.
+  Each data file contains 1M entries maximum. Multiple data files created to avoid github size constraint.
+  """
+  
+  file_index = 0
+  data_count = 0
+  current_file = f"{dest}_{file_index}.txt"
+  
+  with open(current_file, "w") as f:
+    number_range = range(10**(num_digits-1), 10**num_digits)
+    operators = ["+", "-"]
+    for number_comb in itertools.product(number_range, repeat=num_operands):
+      for op_comb in itertools.product(operators, repeat=num_operands-1):
+        print(number_comb)
+        print(op_comb)
+      data_count += 1
+      if data_count > 2:
+        break
+      
+    # for num1 in range(10**(num_digits-1), 10**num_digits):
+    #   for num2 in range(10**(num_digits-1), 10**num_digits):
+    #     for num3 in range(10**(num_digits-1), 10**num_digits):
+    #       for num3 in range(10**(num_digits-1), 10**num_digits):
+    #     sum = num1 + num2
+    #     diff = num1 - num2
+        
+    #     if sum < 10**num_digits:
+    #       sum_str = f"${num1}+{num2}=+0{sum}$"
+    #     else:
+    #       sum_str = f"${num1}+{num2}=+{sum}$"
+        
+    #     diff_zero_padding = (num_digits + 1 - len(str(np.abs(diff)))) * "0"
+    #     if diff > 0:
+    #       diff_str = f"${num1}-{num2}=+{diff_zero_padding}{np.abs(diff)}$"
+    #     else:
+    #       diff_str = f"${num1}-{num2}=-{diff_zero_padding}{np.abs(diff)}$"
+          
+    #     f.write(f"{sum_str}\n")
+    #     f.write(f"{diff_str}\n")
+    #     data_count += 2
+        
+    #     if data_count == 100000:
+    #       file_index += 1
+    #       data_count = 0
+    #       current_file = f"{dest}_{file_index}.txt"
+    #       f = open(current_file, "w")
+    
+    # print(f"Data generation completed: {file_index + 1} files created.")
+
 
 def generate_test_data(num_samples, dest, num_digits=3):
   """ 
@@ -141,7 +196,7 @@ class trainingDataset(Dataset):
         equal_index = tokenized_line.index(equal_token)
         self.x.append(tokenized_line[:-2])
         self.y.append(tokenized_line[equal_index+1:-1])
-
+  
   def __len__(self):
     return len(self.x)
 
@@ -205,34 +260,17 @@ def main_analyze_data():
 
 
 def main_generate_data():
-  # generate_data_simple(100, 10, "data/toy_eval_data_100.txt")
-  # generate_data_simple(100, 100, "data/eval_data_100.txt")
-  # generate_data_pad(100_000, 100, "data/training_data_pad_100K.txt", 10, "front")
-  # generate_data_balanced("data/3_digits_addition_padded.txt")
-  # generate_test_data(100, "data/3_digits_eval_100")
-  # length_count = analyze_line_lengths("data/training_data_100k.txt")
-  # plot_length_distribution(length_count)
-  # plot_digit_distribution("data/3_digits_addition_padded.txt")
-  data_dir = "data/3_digits_addition_padded.txt"
-  # vocab_size, encode, decode = tokenizer(data_dir)
-  # dataset = trainingDataset(data_dir, encode)
-  # print("vocab size:", vocab_size)
-  
-  # for i in range(5):
-  #   print(f"item {i}")
-  #   print("input:", decode(dataset[i][0].tolist()))
-  #   print("target:", decode(dataset[i][1].tolist()))
-  #   print(dataset[i])
-
-  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
-  print("train")
-  for idx, (batch_x, batch_y) in enumerate(train_dataloader):
-    print("batch", idx)
-    print(batch_x.shape)
-    print(batch_y.shape)
-    print()
-    if idx > 3:
-      break
+  data_dir = "data/random"
+  generate_data_complex(data_dir)
+  # vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
+  # print("train")
+  # for idx, (batch_x, batch_y) in enumerate(train_dataloader):
+  #   print("batch", idx)
+  #   print(batch_x.shape)
+  #   print(batch_y.shape)
+  #   print()
+  #   if idx > 3:
+  #     break
   # print("eval")
   # for idx, (batch_x, batch_y) in enumerate(val_dataloader):
   #   print("batch", idx)
