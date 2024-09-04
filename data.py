@@ -1,13 +1,13 @@
 import numpy as np
-import itertools
+import random
 import collections
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 
-################## Useful Functions ##################
+################## Data generation and tokenization ##################
 
-def generate_data_complex(dest, num_digits=2, num_operands=4):
+def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e7)):
   """
   Geenerate strings of complex arithmetic expressions with addition and subtraction.
   Number of operants can be arbitrarily specified
@@ -19,106 +19,40 @@ def generate_data_complex(dest, num_digits=2, num_operands=4):
   file_index = 0
   data_count = 0
   current_file = f"{dest}_{file_index}.txt"
+  operators = ["+", "-"]
   
   with open(current_file, "w") as f:
-    number_range = range(10**(num_digits-1), 10**num_digits)
-    operators = ["+", "-"]
-    for number_comb in itertools.product(number_range, repeat=num_operands):
-      for op_comb in itertools.product(operators, repeat=num_operands-1):
-        print(number_comb)
-        print(op_comb)
-      data_count += 1
-      if data_count > 2:
-        break
+    for i in range(num_samples):
+      # Randomly generate operands and operations
+      operands = np.random.randint(10**(num_digits-1), 10**num_digits, size=num_operands)
+      ops = random.choices(operators, k=num_operands-1)
       
-    # for num1 in range(10**(num_digits-1), 10**num_digits):
-    #   for num2 in range(10**(num_digits-1), 10**num_digits):
-    #     for num3 in range(10**(num_digits-1), 10**num_digits):
-    #       for num3 in range(10**(num_digits-1), 10**num_digits):
-    #     sum = num1 + num2
-    #     diff = num1 - num2
-        
-    #     if sum < 10**num_digits:
-    #       sum_str = f"${num1}+{num2}=+0{sum}$"
-    #     else:
-    #       sum_str = f"${num1}+{num2}=+{sum}$"
-        
-    #     diff_zero_padding = (num_digits + 1 - len(str(np.abs(diff)))) * "0"
-    #     if diff > 0:
-    #       diff_str = f"${num1}-{num2}=+{diff_zero_padding}{np.abs(diff)}$"
-    #     else:
-    #       diff_str = f"${num1}-{num2}=-{diff_zero_padding}{np.abs(diff)}$"
-          
-    #     f.write(f"{sum_str}\n")
-    #     f.write(f"{diff_str}\n")
-    #     data_count += 2
-        
-    #     if data_count == 100000:
-    #       file_index += 1
-    #       data_count = 0
-    #       current_file = f"{dest}_{file_index}.txt"
-    #       f = open(current_file, "w")
+      # Generate equation string
+      equation_str = str(operands[0])
+      for j in range(len(ops)):
+        equation_str += ops[j]
+        equation_str += str(operands[j+1])
+      result = eval(equation_str)
+      zero_padding = (num_digits + 1 - len(str(np.abs(result)))) * "0"
+      if result >= 0:
+        equation_str = "$" + equation_str + "=+" + zero_padding + str(result) + "$"
+      else:
+        equation_str = "$" + equation_str + "=-" + zero_padding + str(np.abs(result)) + "$"
     
-    # print(f"Data generation completed: {file_index + 1} files created.")
+      # Write to dest
+      f.write(f"{equation_str}\n")
+      if (i+1)%1000000 == 0:
+        file_index += 1
+        current_file = f"{dest}_{file_index}.txt"
+        print(f"new file created: {current_file}")
+        f = open(current_file, "w")
+    
+    print(f"Data generation completed: {file_index + 1} files created.")
 
-
-def generate_test_data(num_samples, dest, num_digits=3):
-  """ 
-  Generate equations with only two operands
-  """
-  with open(dest, "w") as f:
-    for i in range(num_samples):
-      num1 = np.random.randint(10**(num_digits-1), 10**num_digits)
-      num2 = np.random.randint(10**(num_digits-1), 10**num_digits)
-      res = num1 + num2
-      if res < 1000:
-        string = f"${num1}+{num2}=0{res}$"
-      else:
-        string = f"${num1}+{num2}={res}$"
-      f.write(f"{string}\n")
-
-def generate_data_balanced(dest, num_digits=3):
-  """
-  Only contains addition.
-  Default operant length: 3 digits
-  Default result length: 4 digits
-  """
-  with open(dest, "w") as f:
-    for num1 in range(10**(num_digits-1), 10**num_digits):
-      for num2 in range(10**(num_digits-1), 10**num_digits):
-        res = num1 + num2
-        if res < 1000:
-          string = f"${num1}+{num2}=0{res}$"
-        else:
-          string = f"${num1}+{num2}={res}$"
-        f.write(f"{string}\n")
-
-def generate_data_pad(num_samples, upper_bound, dest, max_length, pad):
-  """ 
-  Generate equations with only two operands
-  pad (str): either "front" or "back"
-  """
-  with open(dest, "w") as f:
-    for i in range(num_samples):
-      num1 = np.random.randint(0, upper_bound)
-      num2 = np.random.randint(0, upper_bound)
-      opt = np.random.randint(0, 2)
-      if opt == 0:
-        res = num1 + num2
-        string = f"{num1}+{num2}={res}"
-      else:
-        res = num1 - num2
-        string = f"{num1}-{num2}={res}"
-      if len(string) < max_length:
-        if pad == "front":
-          string = " "*(max_length - len(string)) + string
-        else:
-          string = string + " "*(max_length - len(string))
-      f.write(f"{string}\n")
 
 def tokenizer(dest):
   """
-  Returns vocab_size, encode, and decode
+  Returns vocab_size, encode function, and decode function
   """
   with open(dest, "r", encoding='utf-8') as f:
     text = f.read()
@@ -130,14 +64,8 @@ def tokenizer(dest):
   decode = lambda l: ''.join([int_to_char[i] for i in l]) # list to string
   return vocab_size, encode, decode
 
-def analyze_line_lengths(dir):
-  """
-  Returns a counter object of the count of each token length
-  """
-  with open(dir, 'r') as file:
-    line_lengths = [len(line) for line in file]
-  length_counts = collections.Counter(line_lengths)
-  return length_counts
+
+################## Data generation and tokenization ##################
 
 def plot_length_distribution(length_counts):
   lengths = list(length_counts.keys())
@@ -249,6 +177,8 @@ def display_tokenizer(vocab_size, decode):
     print(f"Token: {i}. char: {decode([i])}")
 
 
+################## main functions ##################
+
 def main_analyze_data():
   vocab_size, encode, decode = tokenizer("data/training_data_100k.txt")
   for i in range(vocab_size):
@@ -260,7 +190,7 @@ def main_analyze_data():
 
 
 def main_generate_data():
-  data_dir = "data/random"
+  data_dir = "data/complex_arithmetic/3_operands_mix"
   generate_data_complex(data_dir)
   # vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
   # print("train")
