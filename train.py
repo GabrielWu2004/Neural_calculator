@@ -1,9 +1,8 @@
-import numpy as np
 import os
+import numpy as np
 from tqdm import tqdm
 from model_architecture import arithmaticTransformer
-from debug import TransformerModel
-from data import tokenizer, trainingDataset, get_dataloader
+from data_processing import tokenizer, streamingDataset
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -11,8 +10,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 
-equal_index = 8
-context_length = 14 
+equal_index = 12
+context_length = 19 
 torch.manual_seed(1337)
 
 def save_checkpoint_fn(model, optimizer, epoch, loss, checkpoint_path):
@@ -54,10 +53,10 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   # Training loop
   model.to(device)
   model.train()
-  total = len(dataloader)
+  # total = len(dataloader)
   
   print("Training begin")
-  with tqdm(enumerate(dataloader, start=start_iter), total=total) as pbar:
+  with tqdm(enumerate(dataloader, start=start_iter), total=max_iter) as pbar:
     for iter, (batch_x, batch_y) in pbar:
       total_loss = 0
       batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,L')
@@ -89,7 +88,7 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   print(f"Final model saved to {final_model_path}")
 
 
-def val_tf(model, dataloader, device, decode):
+def val_tf(model, dataloader, device, decode, verbose=0):
   """
   Evaluation: teacher-forcing style
   """
@@ -104,12 +103,12 @@ def val_tf(model, dataloader, device, decode):
     matching_output = torch.all(logits == batch_y, dim=1)
     num_correct += torch.sum(matching_output).item()
     total += batch_x.shape[0]
-    # print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
-    # Optionally print out model output versus correct answer
-    # if idx == 0:
-    #   for item in range(logits.shape[0]):
-    #     print("Model output:", decode(logits[item].tolist()))
-    #     print("Correct answer:", decode(batch_y[item].tolist()))
+    if verbose:
+      print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
+      if verbose == 2 and idx == 0:
+        for item in range(logits.shape[0]):
+          print("Model output:", decode(logits[item].tolist()))
+          print("Correct answer:", decode(batch_y[item].tolist()))
   print(f"Teacher forcing inference result: {num_correct}/{total}")
 
 def val_ar(model, dataloader, device, decode):
@@ -141,29 +140,35 @@ def count_parameters(model):
 
 
 def main():
-  data_dir = "data/3_digits_addition_padded.txt"
-  vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=512)
+  # Load dataset
+  training_data_dir = "data/complex_arithmetic"
+  testing_data_dir = "data/testing"
+  vocab_size, encode, decode = tokenizer(os.path.join(training_data_dir, os.listdir(training_data_dir)[0]))
+  train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=True)
+  train_dataloader = DataLoader(train_dataset, batch_size=1024)
+  test_dataset = streamingDataset(testing_data_dir, encode=encode, reverse=True)
+  test_dataloader = DataLoader(test_dataset, batch_size=64)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
   print("vocabe size:", vocab_size)
   
   # Build model
-  model_name = "AT_220K"
+  model_name = "test"
   params = {"vocab_size": vocab_size,
-          "context_length": 14,
-          "model_size": 96,
+          "context_length": context_length,
+          "model_size": 128,
           "num_heads": 8,
-          "num_blocks": 2,
+          "num_blocks": 4,
           "device": device}
   learning_rate = 1e-3
   
-  # train model 1 - arithmatic transformer
-  model1 = arithmaticTransformer(**params)
-  print(f'Model {model_name} has {count_parameters(model1):,} trainable parameters')
+  # Model training
+  model = arithmaticTransformer(**params)
+  print(f'Model {model_name} has {count_parameters(model):,} trainable parameters')
   print(params)
-  optimizer1 = optim.AdamW(model1.parameters(), lr=learning_rate)
-  scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=1000, gamma=0.5)
-  train(model1, train_dataloader, optimizer1, scheduler1, device, max_iter=1e6, report_interval=50, model_name=model_name)
-  val_tf(model1, val_dataloader, device, decode)
+  optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+  scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.98)
+  train(model, train_dataloader, optimizer, scheduler, device, max_iter=1e4, report_interval=50, model_name=model_name)
+  val_tf(model, test_dataloader, device, decode, verbose=2)
 
 
 if __name__ == "__main__":

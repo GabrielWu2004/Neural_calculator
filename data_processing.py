@@ -1,13 +1,14 @@
+import os
 import numpy as np
 import random
 import collections
 import matplotlib.pyplot as plt
 import torch
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import Dataset, IterableDataset, DataLoader, random_split
 
 ################## Data generation and tokenization ##################
 
-def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e7)):
+def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e7), filesize=int(1e6)):
   """
   Geenerate strings of complex arithmetic expressions with addition and subtraction.
   Number of operants can be arbitrarily specified
@@ -17,7 +18,6 @@ def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e
   """
   
   file_index = 0
-  data_count = 0
   current_file = f"{dest}_{file_index}.txt"
   operators = ["+", "-"]
   
@@ -41,7 +41,7 @@ def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e
     
       # Write to dest
       f.write(f"{equation_str}\n")
-      if (i+1)%1000000 == 0:
+      if (i+1)%filesize == 0:
         file_index += 1
         current_file = f"{dest}_{file_index}.txt"
         print(f"new file created: {current_file}")
@@ -65,7 +65,7 @@ def tokenizer(dest):
   return vocab_size, encode, decode
 
 
-################## Data generation and tokenization ##################
+################## Data Analysis ##################
 
 def plot_length_distribution(length_counts):
   lengths = list(length_counts.keys())
@@ -111,6 +111,28 @@ def plot_digit_distribution(dir):
   plt.show()
 
 ################## Dataset and Dataloader ##################
+
+class streamingDataset(IterableDataset):
+  def __init__(self, dir, encode, reverse=False):
+    self.file_paths = [os.path.join(dir, file) for file in os.listdir(dir)]
+    self.encode = encode
+    self.reverse = reverse
+  
+  def line_iterator(self):
+    equal_token = self.encode("=")[0]
+    for file_path in self.file_paths:
+      with open(file_path, "r", encoding='utf-8') as f:
+        for line in f:
+          tokenized_line = self.encode(line)
+          equal_index = tokenized_line.index(equal_token)
+          if self.reverse:
+            tokenized_line[equal_index+1:-2] = reversed(tokenized_line[equal_index+1:-2]) # from first non-sign digit to right before delimiter
+          x = tokenized_line[:-2]
+          y = tokenized_line[equal_index+1:-1]
+          yield torch.tensor(x), torch.tensor(y)
+  
+  def __iter__(self):
+    return self.line_iterator()
 
 class trainingDataset(Dataset):
   def __init__(self, dir, encode):
@@ -183,43 +205,27 @@ def main_analyze_data():
   vocab_size, encode, decode = tokenizer("data/training_data_100k.txt")
   for i in range(vocab_size):
     print(f"Token: {i}. char: {decode([i])}")
-  # training_dataset = trainingDataset("data/training_data_100k.txt", encode)
-  # length_to_indices = group_by_length(training_dataset)
-  # token_counters = token_by_length(length_to_indices, training_dataset)
-  # plot_token_distribution(token_counters, vocab_size)
 
 
 def main_generate_data():
-  data_dir = "data/complex_arithmetic/3_operands_mix"
-  generate_data_complex(data_dir)
-  # vocab_size, encode, decode, train_dataloader, val_dataloader = get_dataloader(data_dir, mode="train", batch_size=4, shuffle=False)
-  # print("train")
-  # for idx, (batch_x, batch_y) in enumerate(train_dataloader):
-  #   print("batch", idx)
-  #   print(batch_x.shape)
-  #   print(batch_y.shape)
-  #   print()
-  #   if idx > 3:
-  #     break
-  # print("eval")
-  # for idx, (batch_x, batch_y) in enumerate(val_dataloader):
-  #   print("batch", idx)
-  #   print(batch_x)
-  #   print(batch_y)
-  #   print()
-  #   if idx > 3:
-  #     break
-
-  # vocab_size, encode, decode, test_dataloader = get_dataloader("data/3_digits_eval_100.txt", mode="test", batch_size=1, shuffle=False)
-  # display_tokenizer(vocab_size, decode)
-  # for idx, (batch_x, batch_y) in enumerate(test_dataloader):
-  #   print("batch", idx)
-  #   print(batch_x)
-  #   print(batch_y)
-  #   print()
-  #   if idx > 3:
-  #     break
-  # pass
+  data_dir = "data/complex_arithmetic" # the folder
+  data_path = "data/testing" # the actual files
+  # generate_data_complex(data_dir, num_samples=2**8, filesize=2**6)
+  vocab_size, encode, decode = tokenizer("data/testing/testing_data_0.txt")
+  dataset = streamingDataset(data_path, encode=encode, reverse=False)
+  dataloader = DataLoader(dataset, batch_size=32)
+  dataset_reverse = streamingDataset(data_path, encode=encode, reverse=True)
+  dataloader_reverse = DataLoader(dataset_reverse, batch_size=32)
+  for i, (x, y) in enumerate(dataloader):
+    for j in range(3):
+      print(x[j], y[j])
+      print(decode(x[j].tolist()), decode(y[j].tolist()))
+    break
+  for i, (x, y) in enumerate(dataloader_reverse):
+    for j in range(3):
+      print(x[j], y[j])
+      print(decode(x[j].tolist()), decode(y[j].tolist()))
+    break
 
 
 if __name__ == "__main__":
