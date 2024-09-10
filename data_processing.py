@@ -50,6 +50,17 @@ def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e
     print(f"Data generation completed: {file_index + 1} files created.")
 
 
+def shuffle_data(data_dir):
+  """ 
+  Takes a txt file (without .txt suffix) of data and shuffle the lines
+  """
+  with open(f"{data_dir}.txt", 'r') as file:
+    lines = file.readlines()
+  random.shuffle(lines)
+  with open(f"{data_dir}_shuffled.txt", 'w') as file:
+    file.writelines(lines)
+  
+
 def tokenizer(dest):
   """
   Returns vocab_size, encode function, and decode function
@@ -230,5 +241,6 @@ def main_generate_data():
 
 if __name__ == "__main__":
   # main_analyze_data()
-  main_generate_data()
+  # main_generate_data()
+  shuffle_data("data/3_digit_addition/3_digits_addition_padded")
   pass

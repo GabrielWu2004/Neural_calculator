@@ -9,7 +9,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-
+# equal_index = 8
 equal_index = 12
 context_length = 19 
 torch.manual_seed(1337)
@@ -141,12 +141,12 @@ def count_parameters(model):
 
 def main():
   # Load dataset
-  training_data_dir = "data/complex_arithmetic"
-  testing_data_dir = "data/testing"
+  training_data_dir = "data/complex_arithmetic_train"
+  testing_data_dir = "data/complex_arithmetic_test"
   vocab_size, encode, decode = tokenizer(os.path.join(training_data_dir, os.listdir(training_data_dir)[0]))
-  train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=True)
+  train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=False)
   train_dataloader = DataLoader(train_dataset, batch_size=1024)
-  test_dataset = streamingDataset(testing_data_dir, encode=encode, reverse=True)
+  test_dataset = streamingDataset(testing_data_dir, encode=encode, reverse=False)
   test_dataloader = DataLoader(test_dataset, batch_size=64)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
   print("vocabe size:", vocab_size)
