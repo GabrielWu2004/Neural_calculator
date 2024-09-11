@@ -1,0 +1,983 @@
+Model test has 25,232,911 trainable parameters
+{'vocab_size': 15, 'context_length': 19, 'model_size': 512, 'num_heads': 8, 'num_blocks': 8, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+loss: 0.015446677207946777:  98%|███████████████████████████████████████████████████████████████████▎ | 9763/10000.0 [28:29<00:42,  5.64it/s]
+Final model saved to model/test.pth
+Batch 0: 2/64
+Model output: 8800+$
+Correct answer: 7700+$
+Model output: 4450+$
+Correct answer: 2850+$
+Model output: 4450+$
+Correct answer: 5950+$
+Model output: 4520+$
+Correct answer: 9220+$
+Model output: 2000-$
+Correct answer: 3200-$
+Model output: 4420+$
+Correct answer: 3320+$
+Model output: 3200-$
+Correct answer: 0300-$
+Model output: 4440+$
+Correct answer: 0640+$
+Model output: 4402+$
+Correct answer: 9202+$
+Model output: 4401+$
+Correct answer: 1701+$
+Model output: 4820-$
+Correct answer: 2020-$
+Model output: 4421+$
+Correct answer: 1321+$
+Model output: 4470-$
+Correct answer: 0170-$
+Model output: 4480+$
+Correct answer: 7180+$
+Model output: 9431+$
+Correct answer: 6531+$
+Model output: 4470-$
+Correct answer: 4470-$
+Model output: 3450+$
+Correct answer: 9050+$
+Model output: 4470+$
+Correct answer: 0670+$
+Model output: 4810-$
+Correct answer: 2510-$
+Model output: 9941+$
+Correct answer: 7041+$
+Model output: 9450+$
+Correct answer: 8750+$
+Model output: 4511+$
+Correct answer: 4211+$
+Model output: 4430-$
+Correct answer: 5730-$
+Model output: 7800-$
+Correct answer: 9400-$
+Model output: 4421+$
+Correct answer: 5921+$
+Model output: 4431+$
+Correct answer: 7931+$
+Model output: 4450+$
+Correct answer: 6950+$
+Model output: 4991+$
+Correct answer: 2591+$
+Model output: 4401+$
+Correct answer: 7301+$
+Model output: 4470-$
+Correct answer: 6370-$
+Model output: 4420-$
+Correct answer: 4820-$
+Model output: 4460+$
+Correct answer: 4960+$
+Model output: 4421+$
+Correct answer: 3411+$
+Model output: 4511-$
+Correct answer: 6911-$
+Model output: 4470-$
+Correct answer: 5670-$
+Model output: 9450+$
+Correct answer: 3750+$
+Model output: 4880-$
+Correct answer: 1980-$
+Model output: 9580+$
+Correct answer: 1480+$
+Model output: 4450-$
+Correct answer: 5550-$
+Model output: 4520+$
+Correct answer: 6420+$
+Model output: 4451+$
+Correct answer: 5551+$
+Model output: 4480+$
+Correct answer: 7480+$
+Model output: 4441-$
+Correct answer: 5341-$
+Model output: 4421+$
+Correct answer: 1521+$
+Model output: 4450+$
+Correct answer: 1250+$
+Model output: 4460+$
+Correct answer: 2860+$
+Model output: 4980+$
+Correct answer: 5680+$
+Model output: 4420+$
+Correct answer: 3320+$
+Model output: 4440-$
+Correct answer: 4440-$
+Model output: 9511+$
+Correct answer: 3311+$
+Model output: 4470-$
+Correct answer: 1070-$
+Model output: 9501+$
+Correct answer: 8701+$
+Model output: 4590+$
+Correct answer: 7990+$
+Model output: 4421+$
+Correct answer: 7921+$
+Model output: 3400-$
+Correct answer: 4500-$
+Model output: 3450+$
+Correct answer: 5050+$
+Model output: 4470+$
+Correct answer: 7770+$
+Model output: 4440-$
+Correct answer: 7740-$
+Model output: 9800-$
+Correct answer: 3900-$
+Model output: 4452+$
+Correct answer: 9652+$
+Model output: 4501+$
+Correct answer: 7101+$
+Model output: 4810-$
+Correct answer: 7010-$
+Model output: 4560+$
+Correct answer: 1360+$
+Model output: 4422+$
+Correct answer: 2622+$
+Batch 1: 1/64
+Batch 2: 0/64
+Batch 3: 1/64
+
+loss: 0.015446677207946777:  98%|███████████████████████████████████████████████████████████████████▍ | 9766/10000.0 [28:29<00:40,  5.71it/s]

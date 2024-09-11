@@ -1,0 +1,260 @@
+Model test has 798,095 trainable parameters
+{'vocab_size': 15, 'context_length': 19, 'model_size': 128, 'num_heads': 8, 'num_blocks': 4, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+loss: 0.013777252435684204:  97%|███████████████████████████████████████████████████████████████████  | 9722/10000.0 [04:04<00:06, 41.32it/s]
+Final model saved to model/test.pth
+Batch 0: 1/64
+Model output: +0099$
+Correct answer: +0077$
+Model output: +0587$
+Correct answer: +0582$
+Model output: +0699$
+Correct answer: +0595$
+Model output: +0237$
+Correct answer: +0229$
+Model output: -0027$
+Correct answer: -0023$
+Model output: +0247$
+Correct answer: +0233$
+Model output: -0010$
+Correct answer: -0030$
+Model output: +0467$
+Correct answer: +0460$
+Model output: +2021$
+Correct answer: +2029$
+Model output: +1087$
+Correct answer: +1071$
+Model output: -0100$
+Correct answer: -0202$
+Model output: +1249$
+Correct answer: +1231$
+Model output: -0707$
+Correct answer: -0710$
+Model output: +0817$
+Correct answer: +0817$
+Model output: +1357$
+Correct answer: +1356$
+Model output: -0757$
+Correct answer: -0744$
+Model output: +0529$
+Correct answer: +0509$
+Model output: +0752$
+Correct answer: +0760$
+Model output: -0169$
+Correct answer: -0152$
+Model output: +1419$
+Correct answer: +1407$
+Model output: +0577$
+Correct answer: +0578$
+Model output: +1127$
+Correct answer: +1124$
+Model output: -0387$
+Correct answer: -0375$
+Model output: -0069$
+Correct answer: -0049$
+Model output: +1399$
+Correct answer: +1295$
+Model output: +1390$
+Correct answer: +1397$
+Model output: +0697$
+Correct answer: +0596$
+Model output: +1954$
+Correct answer: +1952$
+Model output: +1047$
+Correct answer: +1037$
+Model output: -0737$
+Correct answer: -0736$
+Model output: -0280$
+Correct answer: -0284$
+Model output: +0799$
+Correct answer: +0694$
+Model output: +1159$
+Correct answer: +1143$
+Model output: -1199$
+Correct answer: -1196$
+Model output: -0767$
+Correct answer: -0765$
+Model output: +0587$
+Correct answer: +0573$
+Model output: -0894$
+Correct answer: -0891$
+Model output: +0844$
+Correct answer: +0841$
+Model output: -0557$
+Correct answer: -0555$
+Model output: +0259$
+Correct answer: +0246$
+Model output: +1567$
+Correct answer: +1555$
+Model output: +0859$
+Correct answer: +0847$
+Model output: -1437$
+Correct answer: -1435$
+Model output: +1269$
+Correct answer: +1251$
+Model output: +0527$
+Correct answer: +0521$
+Model output: +0687$
+Correct answer: +0682$
+Model output: +0889$
+Correct answer: +0865$
+Model output: +0247$
+Correct answer: +0233$
+Model output: -0447$
+Correct answer: -0444$
+Model output: +1139$
+Correct answer: +1133$
+Model output: -0700$
+Correct answer: -0701$
+Model output: +1061$
+Correct answer: +1078$
+Model output: +0999$
+Correct answer: +0997$
+Model output: +1399$
+Correct answer: +1297$
+Model output: -0050$
+Correct answer: -0054$
+Model output: +0529$
+Correct answer: +0505$
+Model output: +0789$
+Correct answer: +0777$
+Model output: -0460$
+Correct answer: -0477$
+Model output: -0199$
+Correct answer: -0093$
+Model output: +2567$
+Correct answer: +2569$
+Model output: +1027$
+Correct answer: +1017$
+Model output: -0007$
+Correct answer: -0107$
+Model output: +0639$
+Correct answer: +0631$
+Model output: +2260$
+Correct answer: +2262$
+Batch 1: 5/64
+Batch 2: 2/64
+Batch 3: 2/64
+
+loss: 0.013540347814559936:  98%|███████████████████████████████████████████████████████████████████▍ | 9766/10000.0 [04:05<00:05, 39.83it/s]

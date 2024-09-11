@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+import wandb
 
 # equal_index = 8
 equal_index = 12
@@ -33,7 +34,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
   return model, optimizer, epoch, loss
 
 
-def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=1e6, save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=int(1e6), save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
   # Make checkpoint directory
   if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
@@ -53,8 +54,6 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   # Training loop
   model.to(device)
   model.train()
-  # total = len(dataloader)
-  
   print("Training begin")
   with tqdm(enumerate(dataloader, start=start_iter), total=max_iter) as pbar:
     for iter, (batch_x, batch_y) in pbar:
@@ -82,7 +81,11 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
       if (iter+1) == max_iter:
         print("Maximum iteration reached")
         break
-
+      
+      # Log result
+      wandb.log({"loss": loss})
+  
+  # Save final model
   final_model_path = os.path.join(checkpoint_dir, f'{model_name}.pth')
   torch.save(model, final_model_path)
   print(f"Final model saved to {final_model_path}")
@@ -110,6 +113,7 @@ def val_tf(model, dataloader, device, decode, verbose=0):
           print("Model output:", decode(logits[item].tolist()))
           print("Correct answer:", decode(batch_y[item].tolist()))
   print(f"Teacher forcing inference result: {num_correct}/{total}")
+
 
 def val_ar(model, dataloader, device, decode):
   """ 
@@ -143,10 +147,11 @@ def main():
   # Load dataset
   training_data_dir = "data/complex_arithmetic_train"
   testing_data_dir = "data/complex_arithmetic_test"
+  reverse = True
   vocab_size, encode, decode = tokenizer(os.path.join(training_data_dir, os.listdir(training_data_dir)[0]))
-  train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=False)
+  train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=reverse)
   train_dataloader = DataLoader(train_dataset, batch_size=1024)
-  test_dataset = streamingDataset(testing_data_dir, encode=encode, reverse=False)
+  test_dataset = streamingDataset(testing_data_dir, encode=encode, reverse=reverse)
   test_dataloader = DataLoader(test_dataset, batch_size=64)
   device = 'cuda' if torch.cuda.is_available() else 'cpu'
   print("vocabe size:", vocab_size)
@@ -155,18 +160,31 @@ def main():
   model_name = "test"
   params = {"vocab_size": vocab_size,
           "context_length": context_length,
-          "model_size": 128,
+          "model_size": 512,
           "num_heads": 8,
-          "num_blocks": 4,
+          "num_blocks": 8,
           "device": device}
   learning_rate = 1e-3
+  lr_step_size = 1000
+  lr_gamma = 0.98
+  
+  # Set up wandb logging
+  wandb.init(
+    project="arithmetic transformer",
+    config={"model_name": model_name,
+            "learning_rate": learning_rate,
+            "lr_step_size": lr_step_size,
+            "lr_gamma": lr_gamma,
+            "reverse": reverse,
+            **params,
+            })
   
   # Model training
   model = arithmaticTransformer(**params)
   print(f'Model {model_name} has {count_parameters(model):,} trainable parameters')
   print(params)
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-  scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1000, gamma=0.98)
+  scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_step_size, gamma=lr_gamma)
   train(model, train_dataloader, optimizer, scheduler, device, max_iter=1e4, report_interval=50, model_name=model_name)
   val_tf(model, test_dataloader, device, decode, verbose=2)
 
