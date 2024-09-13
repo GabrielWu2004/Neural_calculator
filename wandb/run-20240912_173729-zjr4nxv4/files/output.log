@@ -1,0 +1,12 @@
+Model AT_FINAL has 227,822 trainable parameters
+{'vocab_size': 14, 'context_length': 19, 'model_size': 96, 'num_heads': 8, 'num_blocks': 2, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+loss: 0.00017181281000375748:   4%|█▉                                                    | 712/20000 [00:09<04:03, 79.27it/s]
+Final model saved to model/AT_FINAL.pth
+
+loss: 0.00024056943133473396:   4%|██▏                                                   | 792/20000 [00:10<04:14, 75.59it/s]

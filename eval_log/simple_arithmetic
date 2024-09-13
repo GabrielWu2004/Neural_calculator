@@ -1,0 +1,405 @@
+Model path: model/AT_FINAL.pth 
+Number of parameters: 227,822
+ 
+ 
+552+240=
+True output: 0792 
+model output: 0792. Confidence: 99.87% 
+ 
+886+491=
+True output: 1377 
+model output: 1377. Confidence: 99.76% 
+ 
+230+734=
+True output: 0964 
+model output: 0964. Confidence: 99.85% 
+ 
+446+656=
+True output: 1102 
+model output: 1102. Confidence: 99.85% 
+ 
+380+410=
+True output: 0790 
+model output: 0790. Confidence: 99.86% 
+ 
+339+716=
+True output: 1055 
+model output: 1055. Confidence: 99.86% 
+ 
+981+614=
+True output: 1595 
+model output: 1595. Confidence: 99.77% 
+ 
+791+177=
+True output: 0968 
+model output: 0968. Confidence: 99.84% 
+ 
+997+239=
+True output: 1236 
+model output: 1236. Confidence: 99.80% 
+ 
+532+284=
+True output: 0816 
+model output: 0816. Confidence: 99.78% 
+ 
+415+539=
+True output: 0954 
+model output: 0954. Confidence: 99.87% 
+ 
+329+374=
+True output: 0703 
+model output: 0703. Confidence: 99.67% 
+ 
+902+847=
+True output: 1749 
+model output: 1749. Confidence: 99.77% 
+ 
+253+210=
+True output: 0463 
+model output: 0463. Confidence: 99.84% 
+ 
+890+374=
+True output: 1264 
+model output: 1264. Confidence: 99.83% 
+ 
+193+992=
+True output: 1185 
+model output: 1185. Confidence: 99.90% 
+ 
+100+221=
+True output: 0321 
+model output: 0321. Confidence: 99.75% 
+ 
+698+421=
+True output: 1119 
+model output: 1119. Confidence: 99.91% 
+ 
+133+179=
+True output: 0312 
+model output: 0312. Confidence: 99.24% 
+ 
+779+352=
+True output: 1131 
+model output: 1131. Confidence: 99.80% 
+ 
+524+523=
+True output: 1047 
+model output: 1047. Confidence: 99.80% 
+ 
+955+381=
+True output: 1336 
+model output: 1336. Confidence: 99.66% 
+ 
+311+653=
+True output: 0964 
+model output: 0964. Confidence: 99.87% 
+ 
+824+954=
+True output: 1778 
+model output: 1778. Confidence: 99.90% 
+ 
+778+223=
+True output: 1001 
+model output: 1001. Confidence: 99.87% 
+ 
+366+155=
+True output: 0521 
+model output: 0521. Confidence: 99.84% 
+ 
+990+188=
+True output: 1178 
+model output: 1178. Confidence: 99.85% 
+ 
+165+641=
+True output: 0806 
+model output: 0806. Confidence: 99.87% 
+ 
+312+768=
+True output: 1080 
+model output: 1080. Confidence: 99.89% 
+ 
+300+652=
+True output: 0952 
+model output: 0952. Confidence: 99.86% 
+ 
+895+810=
+True output: 1705 
+model output: 1705. Confidence: 99.84% 
+ 
+538+490=
+True output: 1028 
+model output: 1028. Confidence: 99.83% 
+ 
+253+155=
+True output: 0408 
+model output: 0408. Confidence: 99.83% 
+ 
+536+579=
+True output: 1115 
+model output: 1115. Confidence: 99.89% 
+ 
+520+926=
+True output: 1446 
+model output: 1446. Confidence: 99.81% 
+ 
+894+218=
+True output: 1112 
+model output: 1112. Confidence: 99.81% 
+ 
+129+847=
+True output: 0976 
+model output: 0976. Confidence: 99.70% 
+ 
+399+110=
+True output: 0509 
+model output: 0509. Confidence: 99.86% 
+ 
+126+343=
+True output: 0469 
+model output: 0469. Confidence: 99.78% 
+ 
+441+912=
+True output: 1353 
+model output: 1353. Confidence: 99.81% 
+ 
+878+431=
+True output: 1309 
+model output: 1309. Confidence: 99.84% 
+ 
+538+309=
+True output: 0847 
+model output: 0847. Confidence: 99.77% 
+ 
+726+485=
+True output: 1211 
+model output: 1211. Confidence: 99.88% 
+ 
+326+718=
+True output: 1044 
+model output: 1044. Confidence: 99.85% 
+ 
+807+988=
+True output: 1795 
+model output: 1795. Confidence: 99.81% 
+ 
+212+411=
+True output: 0623 
+model output: 0623. Confidence: 99.86% 
+ 
+141+123=
+True output: 0264 
+model output: 0264. Confidence: 99.73% 
+ 
+784+905=
+True output: 1689 
+model output: 1689. Confidence: 99.86% 
+ 
+692+577=
+True output: 1269 
+model output: 1269. Confidence: 99.82% 
+ 
+844+186=
+True output: 1030 
+model output: 1030. Confidence: 99.66% 
+ 
+998+358=
+True output: 1356 
+model output: 1356. Confidence: 99.71% 
+ 
+528+706=
+True output: 1234 
+model output: 1234. Confidence: 99.87% 
+ 
+705+763=
+True output: 1468 
+model output: 1468. Confidence: 99.77% 
+ 
+370+786=
+True output: 1156 
+model output: 1156. Confidence: 99.85% 
+ 
+301+170=
+True output: 0471 
+model output: 0471. Confidence: 99.81% 
+ 
+484+307=
+True output: 0791 
+model output: 0791. Confidence: 99.89% 
+ 
+295+266=
+True output: 0561 
+model output: 0561. Confidence: 99.76% 
+ 
+346+900=
+True output: 1246 
+model output: 1246. Confidence: 99.81% 
+ 
+906+532=
+True output: 1438 
+model output: 1438. Confidence: 99.78% 
+ 
+968+931=
+True output: 1899 
+model output: 1899. Confidence: 99.89% 
+ 
+211+868=
+True output: 1079 
+model output: 1079. Confidence: 99.86% 
+ 
+377+899=
+True output: 1276 
+model output: 1276. Confidence: 99.87% 
+ 
+288+223=
+True output: 0511 
+model output: 0511. Confidence: 99.81% 
+ 
+841+263=
+True output: 1104 
+model output: 1104. Confidence: 99.90% 
+ 
+601+258=
+True output: 0859 
+model output: 0859. Confidence: 99.69% 
+ 
+498+758=
+True output: 1256 
+model output: 1256. Confidence: 99.86% 
+ 
+467+789=
+True output: 1256 
+model output: 1256. Confidence: 99.89% 
+ 
+353+580=
+True output: 0933 
+model output: 0933. Confidence: 99.78% 
+ 
+408+674=
+True output: 1082 
+model output: 1082. Confidence: 99.90% 
+ 
+517+270=
+True output: 0787 
+model output: 0787. Confidence: 99.77% 
+ 
+176+136=
+True output: 0312 
+model output: 0312. Confidence: 99.17% 
+ 
+730+596=
+True output: 1326 
+model output: 1326. Confidence: 99.84% 
+ 
+657+202=
+True output: 0859 
+model output: 0859. Confidence: 99.84% 
+ 
+984+350=
+True output: 1334 
+model output: 1334. Confidence: 99.68% 
+ 
+312+727=
+True output: 1039 
+model output: 1039. Confidence: 99.87% 
+ 
+910+789=
+True output: 1699 
+model output: 1699. Confidence: 99.81% 
+ 
+766+378=
+True output: 1144 
+model output: 1144. Confidence: 99.85% 
+ 
+357+179=
+True output: 0536 
+model output: 0536. Confidence: 99.75% 
+ 
+172+888=
+True output: 1060 
+model output: 1060. Confidence: 99.90% 
+ 
+726+415=
+True output: 1141 
+model output: 1141. Confidence: 99.87% 
+ 
+592+361=
+True output: 0953 
+model output: 0953. Confidence: 99.83% 
+ 
+798+691=
+True output: 1489 
+model output: 1489. Confidence: 99.80% 
+ 
+690+254=
+True output: 0944 
+model output: 0944. Confidence: 99.84% 
+ 
+387+226=
+True output: 0613 
+model output: 0613. Confidence: 99.78% 
+ 
+241+168=
+True output: 0409 
+model output: 0409. Confidence: 99.81% 
+ 
+215+550=
+True output: 0765 
+model output: 0765. Confidence: 99.88% 
+ 
+309+738=
+True output: 1047 
+model output: 1047. Confidence: 99.81% 
+ 
+674+587=
+True output: 1261 
+model output: 1261. Confidence: 99.86% 
+ 
+150+447=
+True output: 0597 
+model output: 0597. Confidence: 99.82% 
+ 
+126+783=
+True output: 0909 
+model output: 0909. Confidence: 99.87% 
+ 
+457+638=
+True output: 1095 
+model output: 1095. Confidence: 99.71% 
+ 
+568+265=
+True output: 0833 
+model output: 0833. Confidence: 99.88% 
+ 
+231+661=
+True output: 0892 
+model output: 0892. Confidence: 99.79% 
+ 
+892+100=
+True output: 0992 
+model output: 0992. Confidence: 99.80% 
+ 
+447+257=
+True output: 0704 
+model output: 0704. Confidence: 99.86% 
+ 
+372+583=
+True output: 0955 
+model output: 0955. Confidence: 99.83% 
+ 
+545+474=
+True output: 1019 
+model output: 1019. Confidence: 99.85% 
+ 
+580+357=
+True output: 0937 
+model output: 0937. Confidence: 99.83% 
+ 
+803+115=
+True output: 0918 
+model output: 0918. Confidence: 99.80% 
+ 
+524+641=
+True output: 1165 
+model output: 1165. Confidence: 99.68% 
+ 
+score: 100/100

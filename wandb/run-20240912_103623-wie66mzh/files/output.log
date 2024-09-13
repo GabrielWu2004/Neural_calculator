@@ -1,0 +1,731 @@
+Model ATC_10M_V1 has 9,480,975 trainable parameters
+{'vocab_size': 15, 'context_length': 19, 'model_size': 256, 'num_heads': 8, 'num_blocks': 12, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+loss: 0.013752607107162475:  98%|███████████████████████████████████████████████████████████████████▎ | 9750/10000.0 [17:41<00:25,  9.65it/s]
+Final model saved to model/ATC_10M_V1.pth
+Batch 0: 4/64
+Question: $132+557-612=
+Model output: 7700+$
+Correct answer: 7700+$
+Question: $884+608-910=
+Model output: 7850+$
+Correct answer: 2850+$
+Question: $483-457+569=
+Model output: 2950+$
+Correct answer: 5950+$
+Question: $536-520+213=
+Model output: 2220+$
+Correct answer: 9220+$
+Question: $534+400-957=
+Model output: 2200-$
+Correct answer: 3200-$
+Question: $338-740+635=
+Model output: 2220+$
+Correct answer: 3320+$
+Question: $401-322-109=
+Model output: 2200-$
+Correct answer: 0300-$
+Question: $119+887-546=
+Model output: 2440+$
+Correct answer: 0640+$
+Question: $802+973+254=
+Model output: 2402+$
+Correct answer: 9202+$
+Question: $553-269+787=
+Model output: 7701+$
+Correct answer: 1701+$
+Question: $878-813-267=
+Model output: 2120-$
+Correct answer: 2020-$
+Question: $180+428+623=
+Model output: 4521+$
+Correct answer: 1321+$
+Question: $409-314-805=
+Model output: 2270-$
+Correct answer: 0170-$
+Question: $907-799+709=
+Model output: 2280+$
+Correct answer: 7180+$
+Question: $693+998-335=
+Model output: 4631+$
+Correct answer: 6531+$
+Question: $338-351-731=
+Model output: 2570-$
+Correct answer: 4470-$
+Question: $462-298+345=
+Model output: 2150+$
+Correct answer: 9050+$
+Question: $867+520-627=
+Model output: 7970+$
+Correct answer: 0670+$
+Question: $362+262-776=
+Model output: 2510-$
+Correct answer: 2510-$
+Question: $283+887+237=
+Model output: 4041+$
+Correct answer: 7041+$
+Question: $289+165+124=
+Model output: 2750+$
+Correct answer: 8750+$
+Question: $833-660+951=
+Model output: 2311+$
+Correct answer: 4211+$
+Question: $369-431-313=
+Model output: 4730-$
+Correct answer: 5730-$
+Question: $275-855+531=
+Model output: 2300-$
+Correct answer: 9400-$
+Question: $562+339+394=
+Model output: 2021+$
+Correct answer: 5921+$
+Question: $894-423+926=
+Model output: 4031+$
+Correct answer: 7931+$
+Question: $423+590-417=
+Model output: 2950+$
+Correct answer: 6950+$
+Question: $433+681+838=
+Model output: 7691+$
+Correct answer: 2591+$
+Question: $437-192+792=
+Model output: 2301+$
+Correct answer: 7301+$
+Question: $428-342-822=
+Model output: 2470-$
+Correct answer: 6370-$
+Question: $266+118-668=
+Model output: 2820-$
+Correct answer: 4820-$
+Question: $633-775+836=
+Model output: 2160+$
+Correct answer: 4960+$
+Question: $990+876-723=
+Model output: 2411+$
+Correct answer: 3411+$
+Question: $430-707-919=
+Model output: 2011-$
+Correct answer: 6911-$
+Question: $422-322-865=
+Model output: 2670-$
+Correct answer: 5670-$
+Question: $592-156+137=
+Model output: 7850+$
+Correct answer: 3750+$
+Question: $380-520-751=
+Model output: 4980-$
+Correct answer: 1980-$
+Question: $562+418-139=
+Model output: 4580+$
+Correct answer: 1480+$
+Question: $523-618-460=
+Model output: 2550-$
+Correct answer: 5550-$
+Question: $809-749+186=
+Model output: 2420+$
+Correct answer: 6420+$
+Question: $254+432+869=
+Model output: 2651+$
+Correct answer: 5551+$
+Question: $893-852+806=
+Model output: 2580+$
+Correct answer: 7480+$
+Question: $158-730-863=
+Model output: 7441-$
+Correct answer: 5341-$
+Question: $446+239+566=
+Model output: 2521+$
+Correct answer: 1521+$
+Question: $705+142-326=
+Model output: 2250+$
+Correct answer: 1250+$
+Question: $674-608+616=
+Model output: 2160+$
+Correct answer: 2860+$
+Question: $127+617+121=
+Model output: 2480+$
+Correct answer: 5680+$
+Question: $135-191+289=
+Model output: 2220+$
+Correct answer: 3320+$
+Question: $169+129-742=
+Model output: 2540-$
+Correct answer: 4440-$
+Question: $681+625-173=
+Model output: 2411+$
+Correct answer: 3311+$
+Question: $315-322-694=
+Model output: 2270-$
+Correct answer: 1070-$
+Question: $511+996-429=
+Model output: 7501+$
+Correct answer: 8701+$
+Question: $315+998-316=
+Model output: 7990+$
+Correct answer: 7990+$
+Question: $277+286+734=
+Model output: 2121+$
+Correct answer: 7921+$
+Question: $914-538-430=
+Model output: 7500-$
+Correct answer: 4500-$
+Question: $473+270-238=
+Model output: 2150+$
+Correct answer: 5050+$
+Question: $733+792-748=
+Model output: 7770+$
+Correct answer: 7770+$
+Question: $607-387-697=
+Model output: 2640-$
+Correct answer: 7740-$
+Question: $422-913+398=
+Model output: 2000-$
+Correct answer: 3900-$
+Question: $943+814+812=
+Model output: 2652+$
+Correct answer: 9652+$
+Question: $444+406+167=
+Model output: 2101+$
+Correct answer: 7101+$
+Question: $736-219-624=
+Model output: 2910-$
+Correct answer: 7010-$
+Question: $105+687-161=
+Model output: 2360+$
+Correct answer: 1360+$
+Question: $933+433+896=
+Model output: 2722+$
+Correct answer: 2622+$
+Batch 1: 2/64
+Batch 2: 2/64
+Batch 3: 3/64
+
+loss: 0.013752607107162475:  98%|███████████████████████████████████████████████████████████████████▍ | 9766/10000.0 [17:43<00:25,  9.18it/s]

@@ -123,18 +123,20 @@ class arithmaticTransformer(nn.Module):
     """
     Autoregressive generation
     x: (1, L)
-    return: (1, L') where L' is the length of the generated sequence
+    return: 
+    - (1, L') where L' is the length of the generated sequence
+    - prob (float): prediction confidence
     """
     self.eval()
     B, L = x.shape
+    prob = 1.0
     for _ in range(self.context_length - L):
       logits = self.forward(x) # (1, L', vocab_size)
-      last_logit = logits[:, -1, :] # (1, vocab_size)
-      # print("last logits:", last_logit)
+      last_logit = F.softmax(logits[:, -1, :], dim=-1) # (1, vocab_size)
       out_token = torch.argmax(last_logit, dim=-1) # (1,)
-      # print("output:", out_token)
+      token_prob = last_logit[0, out_token].item()
+      prob *= token_prob
       x = torch.cat([x, out_token.unsqueeze(1)], dim=1) # (1, L+1)
-      # print("new sequence:", x)
       if out_token.item() == encode("$")[0]:
         break
-    return x[:, L:]
+    return x[:, L:], prob

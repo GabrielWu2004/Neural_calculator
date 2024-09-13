@@ -1,10 +1,9 @@
 import os
-import numpy as np
+import argparse
 from tqdm import tqdm
 from model_architecture import arithmaticTransformer
 from data_processing import tokenizer, streamingDataset
 import torch
-import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
@@ -34,7 +33,7 @@ def load_checkpoint(checkpoint_path, model, optimizer):
   return model, optimizer, epoch, loss
 
 
-def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=int(1e6), save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=int(2e6), save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
   # Make checkpoint directory
   if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
@@ -110,8 +109,11 @@ def val_tf(model, dataloader, device, decode, verbose=0):
       print(f"Batch {idx}: {torch.sum(matching_output).item()}/{batch_x.shape[0]}")
       if verbose == 2 and idx == 0:
         for item in range(logits.shape[0]):
+          question = batch_x[item][:equal_index+1].tolist()
+          print("Question:", decode(question))
           print("Model output:", decode(logits[item].tolist()))
           print("Correct answer:", decode(batch_y[item].tolist()))
+          print()
   print(f"Teacher forcing inference result: {num_correct}/{total}")
 
 
@@ -144,6 +146,17 @@ def count_parameters(model):
 
 
 def main():
+  # argument parsing
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--lr", type=float, default=1e-3)
+  parser.add_argument("--model_name", type=str, default="test")
+  parser.add_argument("--model_size", type=int, default=256)
+  parser.add_argument("--num_heads", type=int, default=8)
+  parser.add_argument("--num_blocks", type=int, default=8)
+  parser.add_argument("--lr_step_size", type=int, default=1000)
+  parser.add_argument("--lr_gamma", type=float, default=0.98)
+  args = parser.parse_args()
+  
   # Load dataset
   training_data_dir = "data/complex_arithmetic_train"
   testing_data_dir = "data/complex_arithmetic_test"
@@ -157,16 +170,16 @@ def main():
   print("vocabe size:", vocab_size)
   
   # Build model
-  model_name = "test"
+  model_name = args.model_name
   params = {"vocab_size": vocab_size,
           "context_length": context_length,
-          "model_size": 512,
-          "num_heads": 8,
-          "num_blocks": 8,
+          "model_size": args.model_size,
+          "num_heads": args.num_heads,
+          "num_blocks": args.num_blocks,
           "device": device}
-  learning_rate = 1e-3
-  lr_step_size = 1000
-  lr_gamma = 0.98
+  learning_rate = args.lr
+  lr_step_size = args.lr_step_size # step decay
+  lr_gamma = args.lr_gamma # step decay factor
   
   # Set up wandb logging
   wandb.init(
@@ -185,8 +198,8 @@ def main():
   print(params)
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_step_size, gamma=lr_gamma)
-  train(model, train_dataloader, optimizer, scheduler, device, max_iter=1e4, report_interval=50, model_name=model_name)
-  val_tf(model, test_dataloader, device, decode, verbose=2)
+  train(model, train_dataloader, optimizer, scheduler, device, max_iter=int(2e4), report_interval=50, model_name=model_name)
+  val_tf(model, test_dataloader, device, decode, verbose=0)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ def generate_data_complex(dest, num_digits=3, num_operands=3, num_samples=int(1e
   Each data file contains 1M entries maximum. Multiple data files created to avoid github size constraint.
   """
   
-  file_index = 0
+  file_index = 10
   current_file = f"{dest}_{file_index}.txt"
   operators = ["+", "-"]
   
@@ -242,5 +242,7 @@ def main_generate_data():
 if __name__ == "__main__":
   # main_analyze_data()
   # main_generate_data()
-  shuffle_data("data/3_digit_addition/3_digits_addition_padded")
+  # shuffle_data("data/3_digit_addition/3_digits_addition_padded")
+  data_dir = "data/complex_arithmetic_train/3_operands_mix"
+  generate_data_complex(data_dir)
   pass

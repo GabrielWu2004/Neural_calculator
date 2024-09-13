@@ -1,0 +1,61 @@
+wandb_version: 1
+
+model_name:
+  desc: null
+  value: test
+learning_rate:
+  desc: null
+  value: 0.001
+lr_step_size:
+  desc: null
+  value: 1000
+lr_gamma:
+  desc: null
+  value: 0.98
+reverse:
+  desc: null
+  value: true
+vocab_size:
+  desc: null
+  value: 15
+context_length:
+  desc: null
+  value: 19
+model_size:
+  desc: null
+  value: 256
+num_heads:
+  desc: null
+  value: 8
+num_blocks:
+  desc: null
+  value: 8
+device:
+  desc: null
+  value: cuda
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.8
+    cli_version: 0.16.5
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1726170157.0
+    t:
+      1:
+      - 1
+      - 55
+      - 105
+      2:
+      - 1
+      - 55
+      - 105
+      3:
+      - 16
+      - 23
+      4: 3.11.8
+      5: 0.16.5
+      8:
+      - 5
+      13: linux-x86_64

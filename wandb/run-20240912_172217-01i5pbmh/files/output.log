@@ -1,0 +1,13 @@
+Model test has 1,589,390 trainable parameters
+{'vocab_size': 14, 'context_length': 19, 'model_size': 128, 'num_heads': 8, 'num_blocks': 8, 'device': 'cuda'}
+Training model from scratch
+Training begin
+  0%|                                                                                              | 0/20000 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 206, in <module>
+    main()
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 201, in main
+    train(model, train_dataloader, optimizer, scheduler, device, max_iter=int(2e4), report_interval=50, model_name=model_name)
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 65, in train
+    targets = batch_y.reshape(B*L)
+RuntimeError: shape '[1024]' is invalid for input of size 5120

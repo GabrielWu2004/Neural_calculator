@@ -1,0 +1,39 @@
+Model ATC_FINAL has 6,324,494 trainable parameters
+{'vocab_size': 14, 'context_length': 19, 'model_size': 256, 'num_heads': 8, 'num_blocks': 8, 'device': 'cuda'}
+Training model from scratch
+Training begin
+  0%|                                                                                      | 3/20000 [00:00<44:12,  7.54it/s]
+Traceback (most recent call last):
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 206, in <module>
+    main()
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 201, in main
+    train(model, train_dataloader, optimizer, scheduler, device, max_iter=int(2e4), report_interval=50, model_name=model_name)
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 85, in train
+    wandb.log({"loss": loss})
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 452, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 403, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 393, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1932, in log
+    self._log(data=data, step=step, commit=commit)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1651, in _log
+    self._partial_history_callback(data, step, commit)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1523, in _partial_history_callback
+    self._backend.interface.publish_partial_history(
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 638, in publish_partial_history
+    item.value_json = json_dumps_safer_history(v)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/util.py", line 842, in json_dumps_safer_history
+    return dumps(obj, cls=WandBHistoryJSONEncoder, **kwargs)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/json/encoder.py", line 199, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/json/encoder.py", line 257, in iterencode
+    return _iterencode(o, 0)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/util.py", line 803, in default
+    obj, converted = json_friendly(obj)
+  File "/home/sankeerth/miniconda3/envs/3dgs/lib/python3.10/site-packages/wandb/util.py", line 613, in json_friendly
+    return obj.item(), True
+KeyboardInterrupt

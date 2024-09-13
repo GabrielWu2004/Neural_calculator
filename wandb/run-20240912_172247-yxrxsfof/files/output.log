@@ -1,0 +1,19 @@
+Model test has 1,589,390 trainable parameters
+{'vocab_size': 14, 'context_length': 19, 'model_size': 128, 'num_heads': 8, 'num_blocks': 8, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+
+
+
+
+
+
+
+loss: 0.0005426868796348572:   4%|██                                                     | 745/20000 [00:23<10:04, 31.86it/s]
+Final model saved to model/test.pth
+
+loss: 0.0003263470157980919:   4%|██▏                                                    | 792/20000 [00:24<10:04, 31.77it/s]

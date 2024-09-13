@@ -1,0 +1,410 @@
+Model ATC_3M_V3 has 3,169,039 trainable parameters
+{'vocab_size': 15, 'context_length': 19, 'model_size': 256, 'num_heads': 8, 'num_blocks': 4, 'device': 'cuda'}
+Training model from scratch
+Training begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+loss: 0.013954248428344727:  97%|███████████████████████████████████████████████████████████████████▎ | 9748/10000.0 [06:53<00:10, 25.05it/s]
+Final model saved to model/ATC_3M_V3.pth
+Batch 0: 0/64
+Question: $132+557-612=
+Model output: 6700+$
+Correct answer: 7700+$
+Question: $884+608-910=
+Model output: 9850+$
+Correct answer: 2850+$
+Question: $483-457+569=
+Model output: 4950+$
+Correct answer: 5950+$
+Question: $536-520+213=
+Model output: 7920+$
+Correct answer: 9220+$
+Question: $534+400-957=
+Model output: 4000-$
+Correct answer: 3200-$
+Question: $338-740+635=
+Model output: 9220+$
+Correct answer: 3320+$
+Question: $401-322-109=
+Model output: 0000-$
+Correct answer: 0300-$
+Question: $119+887-546=
+Model output: 4640+$
+Correct answer: 0640+$
+Question: $802+973+254=
+Model output: 9102+$
+Correct answer: 9202+$
+Question: $553-269+787=
+Model output: 4601+$
+Correct answer: 1701+$
+Question: $878-813-267=
+Model output: 6020-$
+Correct answer: 2020-$
+Question: $180+428+623=
+Model output: 9221+$
+Correct answer: 1321+$
+Question: $409-314-805=
+Model output: 9070-$
+Correct answer: 0170-$
+Question: $907-799+709=
+Model output: 9080+$
+Correct answer: 7180+$
+Question: $693+998-335=
+Model output: 4431+$
+Correct answer: 6531+$
+Question: $338-351-731=
+Model output: 9470-$
+Correct answer: 4470-$
+Question: $462-298+345=
+Model output: 4050+$
+Correct answer: 9050+$
+Question: $867+520-627=
+Model output: 9770+$
+Correct answer: 0670+$
+Question: $362+262-776=
+Model output: 6210-$
+Correct answer: 2510-$
+Question: $283+887+237=
+Model output: 4941+$
+Correct answer: 7041+$
+Question: $289+165+124=
+Model output: 7650+$
+Correct answer: 8750+$
+Question: $833-660+951=
+Model output: 4311+$
+Correct answer: 4211+$
+Question: $369-431-313=
+Model output: 9830-$
+Correct answer: 5730-$
+Question: $275-855+531=
+Model output: 6600-$
+Correct answer: 9400-$
+Question: $562+339+394=
+Model output: 3921+$
+Correct answer: 5921+$
+Question: $894-423+926=
+Model output: 7831+$
+Correct answer: 7931+$
+Question: $423+590-417=
+Model output: 9950+$
+Correct answer: 6950+$
+Question: $433+681+838=
+Model output: 9591+$
+Correct answer: 2591+$
+Question: $437-192+792=
+Model output: 4601+$
+Correct answer: 7301+$
+Question: $428-342-822=
+Model output: 9370-$
+Correct answer: 6370-$
+Question: $266+118-668=
+Model output: 6620-$
+Correct answer: 4820-$
+Question: $633-775+836=
+Model output: 4660+$
+Correct answer: 4960+$
+Question: $990+876-723=
+Model output: 4411+$
+Correct answer: 3411+$
+Question: $430-707-919=
+Model output: 9011-$
+Correct answer: 6911-$
+Question: $422-322-865=
+Model output: 9670-$
+Correct answer: 5670-$
+Question: $592-156+137=
+Model output: 6950+$
+Correct answer: 3750+$
+Question: $380-520-751=
+Model output: 9480-$
+Correct answer: 1980-$
+Question: $562+418-139=
+Model output: 7680+$
+Correct answer: 1480+$
+Question: $523-618-460=
+Model output: 9550-$
+Correct answer: 5550-$
+Question: $809-749+186=
+Model output: 9620+$
+Correct answer: 6420+$
+Question: $254+432+869=
+Model output: 9451+$
+Correct answer: 5551+$
+Question: $893-852+806=
+Model output: 4580+$
+Correct answer: 7480+$
+Question: $158-730-863=
+Model output: 4341-$
+Correct answer: 5341-$
+Question: $446+239+566=
+Model output: 9421+$
+Correct answer: 1521+$
+Question: $705+142-326=
+Model output: 6450+$
+Correct answer: 1250+$
+Question: $674-608+616=
+Model output: 9760+$
+Correct answer: 2860+$
+Question: $127+617+121=
+Model output: 9880+$
+Correct answer: 5680+$
+Question: $135-191+289=
+Model output: 9620+$
+Correct answer: 3320+$
+Question: $169+129-742=
+Model output: 6740-$
+Correct answer: 4440-$
+Question: $681+625-173=
+Model output: 4311+$
+Correct answer: 3311+$
+Question: $315-322-694=
+Model output: 9970-$
+Correct answer: 1070-$
+Question: $511+996-429=
+Model output: 9901+$
+Correct answer: 8701+$
+Question: $315+998-316=
+Model output: 9990+$
+Correct answer: 7990+$
+Question: $277+286+734=
+Model output: 4921+$
+Correct answer: 7921+$
+Question: $914-538-430=
+Model output: 9400-$
+Correct answer: 4500-$
+Question: $473+270-238=
+Model output: 6150+$
+Correct answer: 5050+$
+Question: $733+792-748=
+Model output: 4970+$
+Correct answer: 7770+$
+Question: $607-387-697=
+Model output: 7640-$
+Correct answer: 7740-$
+Question: $422-913+398=
+Model output: 7100-$
+Correct answer: 3900-$
+Question: $943+814+812=
+Model output: 9752+$
+Correct answer: 9652+$
+Question: $444+406+167=
+Model output: 7901+$
+Correct answer: 7101+$
+Question: $736-219-624=
+Model output: 6010-$
+Correct answer: 7010-$
+Question: $105+687-161=
+Model output: 9460+$
+Correct answer: 1360+$
+Question: $933+433+896=
+Model output: 3622+$
+Correct answer: 2622+$
+Batch 1: 1/64
+Batch 2: 1/64
+Batch 3: 4/64
+
+loss: 0.013954248428344727:  98%|███████████████████████████████████████████████████████████████████▍ | 9766/10000.0 [06:54<00:09, 23.56it/s]
