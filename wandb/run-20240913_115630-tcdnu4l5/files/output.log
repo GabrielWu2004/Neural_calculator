@@ -1,0 +1,11 @@
+Training model from scratch
+Training begin
+  0%|                                                                                              | 0/20000 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 227, in <module>
+    main()
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 221, in main
+    train(model, train_dataloader, test_dataloader, decode, optimizer, scheduler, device,
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 68, in train
+    targets = batch_y.reshape(B*L)
+RuntimeError: shape '[1024]' is invalid for input of size 5120

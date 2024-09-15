@@ -1,0 +1,11 @@
+Training model from scratch
+Training begin
+loss: 0.028352293968200683:   0%|▏                                                        | 49/20000 [00:00<04:41, 70.82it/s]
+Traceback (most recent call last):
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 228, in <module>
+    main()
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 222, in main
+    train(model, train_dataloader, test_dataloader, decode, equal_index, optimizer, scheduler, device,
+  File "/home/sankeerth/Gabriel/random/neural_calculator/train.py", line 76, in train
+    eval_accuracy = val_tf(model, test_dataloader, device, decode)
+TypeError: val_tf() missing 1 required positional argument: 'equal_index'

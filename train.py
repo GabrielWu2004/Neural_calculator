@@ -9,9 +9,6 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import wandb
 
-# equal_index = 8
-equal_index = 12
-context_length = 19 
 torch.manual_seed(1337)
 
 def save_checkpoint_fn(model, optimizer, epoch, loss, checkpoint_path):
@@ -33,7 +30,10 @@ def load_checkpoint(checkpoint_path, model, optimizer):
   return model, optimizer, epoch, loss
 
 
-def train(model, dataloader, optimizer, scheduler, device, model_name, report_interval=100, max_iter=int(2e6), save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, resume_checkpoint=False, checkpoint_dir='model'):
+def train(model, train_dataloader, test_dataloader, decode, equal_index, optimizer, scheduler, 
+          device, logging, model_name, report_interval=100, max_iter=int(2e6), 
+          save_checkpoint=False, checkpoint_path=None, checkpoint_interval=None, 
+          resume_checkpoint=False, checkpoint_dir='model'):
   # Make checkpoint directory
   if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
@@ -54,7 +54,7 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   model.to(device)
   model.train()
   print("Training begin")
-  with tqdm(enumerate(dataloader, start=start_iter), total=max_iter) as pbar:
+  with tqdm(enumerate(train_dataloader, start=start_iter), total=max_iter) as pbar:
     for iter, (batch_x, batch_y) in pbar:
       total_loss = 0
       batch_x, batch_y = batch_x.to(device), batch_y.to(device) # (B, L), (B,L')
@@ -73,6 +73,17 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
       if (iter+1) % report_interval == 0:
         pbar.set_description(f"loss: {total_loss/report_interval}")
         total_loss = 0
+        model.eval()
+        eval_accuracy = val_tf(model, test_dataloader, device, decode, equal_index)
+        model.train()
+        
+        # Logg results
+        if logging:
+          wandb.log({"loss": loss, 
+                     "lr": scheduler.get_last_lr()[0],
+                     "eval_accuracy": eval_accuracy}, step=iter)
+      
+      # Checkpoint saving
       if save_checkpoint:
         if (iter+1) % checkpoint_interval == 0:
           checkpoint_path = os.path.join(checkpoint_dir, f'{model_name}_checkpoint_iter_{iter+1}.pth')
@@ -80,9 +91,6 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
       if (iter+1) == max_iter:
         print("Maximum iteration reached")
         break
-      
-      # Log result
-      wandb.log({"loss": loss})
   
   # Save final model
   final_model_path = os.path.join(checkpoint_dir, f'{model_name}.pth')
@@ -90,7 +98,7 @@ def train(model, dataloader, optimizer, scheduler, device, model_name, report_in
   print(f"Final model saved to {final_model_path}")
 
 
-def val_tf(model, dataloader, device, decode, verbose=0):
+def val_tf(model, dataloader, device, decode, equal_index, verbose=0):
   """
   Evaluation: teacher-forcing style
   """
@@ -114,10 +122,12 @@ def val_tf(model, dataloader, device, decode, verbose=0):
           print("Model output:", decode(logits[item].tolist()))
           print("Correct answer:", decode(batch_y[item].tolist()))
           print()
-  print(f"Teacher forcing inference result: {num_correct}/{total}")
+  if verbose:
+    print(f"Teacher forcing inference result: {num_correct}/{total}")
+  return num_correct/total
 
 
-def val_ar(model, dataloader, device, decode):
+def val_ar(model, dataloader, device, decode, equal_index):
   """ 
   Evaluation: autoregressive style
   """
@@ -148,19 +158,30 @@ def count_parameters(model):
 def main():
   # argument parsing
   parser = argparse.ArgumentParser()
-  parser.add_argument("--lr", type=float, default=1e-3)
+  parser.add_argument("--mode", type=str, default="complex", help="simple or complex")
+  parser.add_argument("--reverse", action="store_true")
+  parser.add_argument("--lr", type=float, default=8e-4)
   parser.add_argument("--model_name", type=str, default="test")
   parser.add_argument("--model_size", type=int, default=256)
   parser.add_argument("--num_heads", type=int, default=8)
   parser.add_argument("--num_blocks", type=int, default=8)
   parser.add_argument("--lr_step_size", type=int, default=1000)
   parser.add_argument("--lr_gamma", type=float, default=0.98)
+  parser.add_argument("--logging", type=bool, default=True)
   args = parser.parse_args()
   
   # Load dataset
-  training_data_dir = "data/complex_arithmetic_train"
-  testing_data_dir = "data/complex_arithmetic_test"
-  reverse = True
+  if args.mode == "simple":
+    training_data_dir = "data/3_digit_addition_train"
+    testing_data_dir = "data/3_digit_addition_test"
+    equal_index = 8
+    context_length = 14
+  else:
+    training_data_dir = "data/complex_arithmetic_train"
+    testing_data_dir = "data/complex_arithmetic_test"
+    equal_index = 12
+    context_length = 19 
+  reverse = args.reverse
   vocab_size, encode, decode = tokenizer(os.path.join(training_data_dir, os.listdir(training_data_dir)[0]))
   train_dataset = streamingDataset(training_data_dir, encode=encode, reverse=reverse)
   train_dataloader = DataLoader(train_dataset, batch_size=1024)
@@ -180,26 +201,29 @@ def main():
   learning_rate = args.lr
   lr_step_size = args.lr_step_size # step decay
   lr_gamma = args.lr_gamma # step decay factor
-  
-  # Set up wandb logging
-  wandb.init(
-    project="arithmetic transformer",
-    config={"model_name": model_name,
-            "learning_rate": learning_rate,
-            "lr_step_size": lr_step_size,
-            "lr_gamma": lr_gamma,
-            "reverse": reverse,
-            **params,
-            })
-  
-  # Model training
   model = arithmaticTransformer(**params)
   print(f'Model {model_name} has {count_parameters(model):,} trainable parameters')
   print(params)
+  
+  # Set up wandb logging
+  if args.logging:
+    wandb.init(
+      project="arithmetic transformer",
+      config={"model_name": model_name,
+              "learning_rate": learning_rate,
+              "lr_step_size": lr_step_size,
+              "lr_gamma": lr_gamma,
+              "reverse": reverse,
+              "num_params": count_parameters(model),
+              **params,
+              })
+  
+  # Model training
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_step_size, gamma=lr_gamma)
-  train(model, train_dataloader, optimizer, scheduler, device, max_iter=int(2e4), report_interval=50, model_name=model_name)
-  val_tf(model, test_dataloader, device, decode, verbose=0)
+  train(model, train_dataloader, test_dataloader, decode, equal_index, optimizer, scheduler, device, 
+        logging=args.logging, max_iter=int(2e4), report_interval=50, model_name=model_name)
+  val_tf(model, test_dataloader, device, decode, equal_index, verbose=0)
 
 
 if __name__ == "__main__":

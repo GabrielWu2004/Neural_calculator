@@ -1,0 +1,63 @@
+wandb_version: 1
+
+model_name:
+  desc: null
+  value: ATC_reverse_3
+learning_rate:
+  desc: null
+  value: 0.0008
+lr_step_size:
+  desc: null
+  value: 1000
+lr_gamma:
+  desc: null
+  value: 0.98
+reverse:
+  desc: null
+  value: true
+num_params:
+  desc: null
+  value: 6325007
+vocab_size:
+  desc: null
+  value: 15
+context_length:
+  desc: null
+  value: 19
+model_size:
+  desc: null
+  value: 256
+num_heads:
+  desc: null
+  value: 8
+num_blocks:
+  desc: null
+  value: 8
+device:
+  desc: null
+  value: cuda
+_wandb:
+  desc: null
+  value:
+    python_version: 3.10.14
+    cli_version: 0.17.9
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1726370171
+    t:
+      1:
+      - 1
+      - 55
+      2:
+      - 1
+      - 55
+      3:
+      - 16
+      - 23
+      - 61
+      4: 3.10.14
+      5: 0.17.9
+      8:
+      - 5
+      13: linux-x86_64
