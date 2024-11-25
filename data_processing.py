@@ -222,27 +222,28 @@ def main_generate_data():
   data_dir = "data/complex_arithmetic" # the folder
   data_path = "data/testing" # the actual files
   # generate_data_complex(data_dir, num_samples=2**8, filesize=2**6)
-  vocab_size, encode, decode = tokenizer("data/testing/testing_data_0.txt")
-  dataset = streamingDataset(data_path, encode=encode, reverse=False)
-  dataloader = DataLoader(dataset, batch_size=32)
-  dataset_reverse = streamingDataset(data_path, encode=encode, reverse=True)
-  dataloader_reverse = DataLoader(dataset_reverse, batch_size=32)
-  for i, (x, y) in enumerate(dataloader):
-    for j in range(3):
-      print(x[j], y[j])
-      print(decode(x[j].tolist()), decode(y[j].tolist()))
-    break
-  for i, (x, y) in enumerate(dataloader_reverse):
-    for j in range(3):
-      print(x[j], y[j])
-      print(decode(x[j].tolist()), decode(y[j].tolist()))
-    break
+  vocab_size, encode, decode = tokenizer("data/complex_arithmetic_test/testing_data_0.txt")
+  display_tokenizer(vocab_size, decode)
+  # dataset = streamingDataset(data_path, encode=encode, reverse=False)
+  # dataloader = DataLoader(dataset, batch_size=32)
+  # dataset_reverse = streamingDataset(data_path, encode=encode, reverse=True)
+  # dataloader_reverse = DataLoader(dataset_reverse, batch_size=32)
+  # for i, (x, y) in enumerate(dataloader):
+  #   for j in range(3):
+  #     print(x[j], y[j])
+  #     print(decode(x[j].tolist()), decode(y[j].tolist()))
+  #   break
+  # for i, (x, y) in enumerate(dataloader_reverse):
+  #   for j in range(3):
+  #     print(x[j], y[j])
+  #     print(decode(x[j].tolist()), decode(y[j].tolist()))
+  #   break
 
 
 if __name__ == "__main__":
   # main_analyze_data()
-  # main_generate_data()
+  main_generate_data()
   # shuffle_data("data/3_digit_addition/3_digits_addition_padded")
-  data_dir = "data/complex_arithmetic_train/3_operands_mix"
-  generate_data_complex(data_dir)
+  # data_dir = "data/complex_arithmetic_train/3_operands_mix"
+  # generate_data_complex(data_dir)
   pass

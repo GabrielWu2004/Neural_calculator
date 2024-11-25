@@ -1,2 +1,0 @@
-Model ATC_6M_LR=5e-4 has 6,325,007 trainable parameters
-{'vocab_size': 15, 'context_length': 19, 'model_size': 256, 'num_heads': 8, 'num_blocks': 8, 'device': 'cuda'}

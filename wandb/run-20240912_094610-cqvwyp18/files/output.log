@@ -1,2 +1,0 @@
-Model test has 3,169,039 trainable parameters
-{'vocab_size': 15, 'context_length': 19, 'model_size': 256, 'num_heads': 8, 'num_blocks': 4, 'device': 'cuda'}
